@@ -62,6 +62,9 @@ class MyPageWorker(pycheetah.Page):
 
         return article
 
+    def get_category(soup):
+        return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
+
 
 if __name__ == '__main__':
     mypage_worker = MyPageWorker(
