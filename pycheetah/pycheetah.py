@@ -1,6 +1,8 @@
 # coding: utf-8
 import logging
 import threading
+from functools import total_ordering
+from multiprocessing import Process
 
 
 class Worker(threading.Thread):
@@ -58,12 +60,31 @@ class Page(threading.Thread):
         self.work_result = {}
 
     def run(self):
-        response = self.request(self.url)
+        try:
+            response = self.request(self.url)
+        except Exception as msg:
+            logging.error(msg)
+            return
         for worker in self.worker_list:
             worker.start(response)
 
     def join(self):
         super(Page, self).join()
         for worker in self.worker_list:
-            self.work_result[worker.name] = worker.join()
+            if worker.ident:
+                self.work_result[worker.name] = worker.join()
+            else:
+                self.work_result[worker.name] = None
         return self.work_result
+
+    def is_alive(self):
+        is_alive_ = [super(Page, self).is_alive()]
+        for each in self.worker_list:
+            is_alive_.append(each.is_alive())
+        return any(is_alive_)
+
+    def __lt__(self, other):
+        return self.is_alive() < other.is_alive()
+
+    def __le__(self, other):
+        return self.is_alive() <= other.is_alive()
