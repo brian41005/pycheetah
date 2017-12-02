@@ -28,7 +28,7 @@ def process(article):
 
 
 class MyPageWorker(pycheetah.Page):
-    def request(self, url):
+    def request(url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -38,7 +38,7 @@ class MyPageWorker(pycheetah.Page):
                              'lxml')
         return soup
 
-    def get_name(self, soup):
+    def get_name(soup):
         try:
             name = soup.findAll('h1',
                                 attrs={'class': 'content__headline',
@@ -47,7 +47,7 @@ class MyPageWorker(pycheetah.Page):
         except (IndexError, AttributeError, UnicodeEncodeError) as errmsg:
             print(errmsg)
 
-    def get_article(self, soup):
+    def get_article(soup):
         article = ''
         for articleBody in soup.findAll('div',
                                         attrs={'class': 'content__article-body from-content-api js-article__body',
