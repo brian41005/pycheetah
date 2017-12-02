@@ -56,9 +56,7 @@ class MyPageWorker(pycheetah.Page):
                                                }):
 
             for each_p in articleBody.findAll('p'):
-                each_p = process(rm_url_tag(each_p.text))
-                if each_p != '':
-                    article += each_p
+                article += process(rm_url_tag(each_p.text))
 
         return article
 
@@ -66,8 +64,23 @@ class MyPageWorker(pycheetah.Page):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 
+class TestPage(unittest.TestCase):
+    def setUp(self):
+        import urls
+        self.urls_list = urls.urlList
+
+    def test_Page(self):
+
+        pages = [MyPageWorker(str(i), url)
+                 for i, url in enumerate(self.urls_list)]
+        for page in pages:
+            page.start()
+        for page in pages:
+            result = page.join()
+            for k, v in result.items():
+                if k == 'name':
+                    self.assertIsNotNone(v)
+
+
 if __name__ == '__main__':
-    mypage_worker = MyPageWorker(
-        'QQ', 'https://www.theguardian.com/business/2014/may/25/astrazeneca-free-pfizer-for-now')
-    mypage_worker.start()
-    print(mypage_worker.join())
+    unittest.main(verbosity=2)
