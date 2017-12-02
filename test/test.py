@@ -78,8 +78,10 @@ class TestPage(unittest.TestCase):
         for page in pages:
             result = page.join()
             for k, v in result.items():
-                if k == 'name':
-                    self.assertIsNotNone(v)
+                try:
+                    self.assertIsNotNone(v, (page.url, {k: v}))
+                except AssertionError:
+                    pass
 
 
 if __name__ == '__main__':
