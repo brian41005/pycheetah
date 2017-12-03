@@ -2,7 +2,6 @@
 import logging
 import os
 import threading
-from collections import defaultdict
 from multiprocessing import Process, Queue
 
 from . import utils
@@ -31,11 +30,12 @@ class Page(threading.Thread):
         super(Page, self).__init__(name=name, daemon=True)
         self.url = url
         self.workers = {}
-        self.work_result = defaultdict(None)
+        self.work_result = {}
         self.request = Page.__request__
         for func in Page.__worker__:
             name = func.__name__.replace('get_', '')
             self.workers[name] = func
+            self.work_result[name] = None
 
     def run(self):
         try:
