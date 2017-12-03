@@ -53,8 +53,7 @@ class Page(threading.Thread):
         return self.work_result
 
     def is_alive(self):
-        is_alive_ = [super(Page, self).is_alive()]
-        return any(is_alive_)
+        return super(Page, self).is_alive()
 
     def __lt__(self, other):
         return self.is_alive() < other.is_alive()
