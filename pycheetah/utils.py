@@ -1,5 +1,8 @@
 # coding: utf-8
 import calendar
+import logging
+import os
+import sys
 from datetime import datetime, timedelta
 
 
@@ -35,3 +38,27 @@ def gen_urls(startdate, enddate, category):
     for d in datelist:
         for c in category:
             yield 'https://www.theguardian.com/%s/%s/all' % (c, d)
+
+
+def init_logger(logdir, console=True):
+    logging.getLogger().setLevel(logging.DEBUG)
+    del logging.getLogger().handlers[:]
+
+    formatstring = '[%(asctime)s][%(threadName)s][%(module)s][%(funcName)s] %(levelname)s: %(message)s'
+    formatter = logging.Formatter(formatstring)
+
+    if console:
+
+        consoleLogger = logging.StreamHandler(stream=sys.stdout)
+        consoleLogger.setLevel(logging.INFO)
+        consoleLogger.setFormatter(formatter)
+        logging.getLogger().addHandler(consoleLogger)
+
+    filename = '%s.log' % datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
+    logpath = os.path.join(logdir, filename)
+    fileLogger = logging.FileHandler(logpath)
+    fileLogger.setLevel(logging.INFO)
+    fileLogger.setFormatter(formatter)
+    logging.getLogger().addHandler(fileLogger)
+    logging.info('You got (%s) logging handler' %
+                 str(logging.getLogger().handlers))

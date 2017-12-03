@@ -42,11 +42,11 @@ class TaskManager:
                     page = self.queue.get()
                     need_to_break = page.is_alive()
                     self.result.append(page.join())
-                    print(page.name, 'Done')
+                    print(page.url, 'Done')
                     if need_to_break:
                         break
 
         while not self.queue.empty():
             page = self.queue.get()
             self.result.append(page.join())
-            print(page.name, 'Done')
+            print(page.url, 'Done')

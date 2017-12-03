@@ -4,9 +4,11 @@ import os
 import re
 import sys
 import time
+import logging
 import unicodedata
 import unittest
-
+from multiprocessing import Process, Pool
+import itertools
 import requests
 from bs4 import BeautifulSoup
 
@@ -69,13 +71,14 @@ class NewsPage(pycheetah.Page):
         return soup
 
     def get_name(soup):
-        try:
-            name = soup.find_all('h1',
-                                 attrs={'class': 'content__headline',
-                                        'itemprop': 'headline'})[0]
+        name = soup.find('h1',
+                         attrs={'class': 'content__headline',
+                                'itemprop': 'headline'})
+        if name:
             return rm_url_tag(str(name)).strip()
-        except (IndexError, AttributeError, UnicodeEncodeError) as errmsg:
-            print(errmsg)
+        # except (IndexError, AttributeError, UnicodeEncodeError) as errmsg:
+        # logging.exception(errmsg, soup.find(
+        # 'link', attrs={'rel': 'canonical'})['href'])
 
     def get_article(soup):
         article = ''
@@ -119,12 +122,36 @@ class DailyPage(pycheetah.Page):
 
 class DailyPageManager(pycheetah.TaskManager):
     __page_class__ = DailyPage
-    # print('TaskManager', __page_class__)
 
 
-def f(l):
+class NewsPageManager(pycheetah.TaskManager):
+    __page_class__ = NewsPage
+
+
+def f(args):
+    l, taskManager = args
     num_thread = 10
     ts = time.time()
-    manager = DailyPageManager(l, num_thread)
+    manager = taskManager(l, num_thread)
     manager.start()
     return manager.result
+
+
+if __name__ == '__main__':
+    CORE = 8
+    pycheetah.init_logger('.')
+    ts = time.time()
+    with Pool(CORE) as p:
+        temp = list(itertools.chain(*p.map(f, [(i, DailyPageManager)
+                                               for i in all_urls_partition])))
+    print(time.time() - ts)
+    all_news_url = []
+    for i in temp:
+        all_news_url.extend(i['urls'])
+    # print(all_news_url)
+    all_news_url = [i for i in pycheetah.partition(all_news_url, CORE)]
+    with Pool(CORE) as p:
+        temp = list(itertools.chain(*p.map(f, [(i, NewsPageManager)
+                                               for i in all_news_url])))
+    cost_time = time.time() - ts
+    print(cost_time / len(temp))

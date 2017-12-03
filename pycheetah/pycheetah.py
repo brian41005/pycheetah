@@ -55,7 +55,7 @@ class Page(threading.Thread):
             name = func.__name__.replace('get_', '')
             self.worker_list.append(Worker(name, func))
 
-        if not self.request:
+        if not self.request and not callable(self.request):
             raise NotImplementedError('request method not found!')
         self.work_result = {}
 

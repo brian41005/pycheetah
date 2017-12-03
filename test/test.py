@@ -47,8 +47,4 @@ class TestPage(unittest.TestCase):
 
 if __name__ == '__main__':
     # unittest.main(verbosity=2)
-    ts = time.time()
-    with Pool(8) as p:
-        result = p.map(theguardian.f,
-                       [i for i in theguardian.all_urls_partition])
-    print(time.time() - ts)
+    pass
