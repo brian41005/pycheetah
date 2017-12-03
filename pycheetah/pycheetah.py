@@ -42,8 +42,9 @@ class Page(threading.Thread):
     def run(self):
         try:
             response = self.request(self.url)
-            for name, worker in self.workers.items():
-                self.work_result[name] = worker(response)
+            if response:
+                for name, worker in self.workers.items():
+                    self.work_result[name] = worker(response)
         except Exception as msg:
             logging.error(msg)
 
