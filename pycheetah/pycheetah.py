@@ -1,12 +1,9 @@
 # coding: utf-8
-import itertools
 import logging
 import os
 import threading
-import time
 from collections import defaultdict
-from functools import total_ordering
-from multiprocessing import Process, Pool, Queue
+from multiprocessing import Process, Queue
 
 from . import utils
 
@@ -71,21 +68,23 @@ def __f(args, *, queue=None):
         return manager.result
 
 
+# def _map(f, partition):
+#     temp_result = []
+#     with Pool(processes=CORE) as pool:
+#         for i in pool.imap_unordered(f, partition):
+#             temp_result.extend(i)
+#     return temp_result
+
+
 def _map(f, partition):
-    temp_result = []
-    with Pool(processes=CORE) as pool:
-        for i in pool.imap_unordered(f, partition):
-            temp_result.extend(i)
-    return temp_result
-
-
-def _map2(f, partition):
     q = Queue()
     temp_result = []
-    jobs = []
-    for p in partition:
-        jobs.append(Process(target=__f, args=(p,), kwargs={'queue': q}))
-        jobs[-1].start()
+    jobs = [Process(target=__f,
+                    args=(p,),
+                    kwargs={'queue': q})
+            for p in partition]
+    for j in jobs:
+        j.start()
     for i in range(CORE):
         temp_result.extend(q.get())
     for j in jobs:
@@ -95,4 +94,4 @@ def _map2(f, partition):
 
 def start(urls, page_class):
     _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
-    return _map2(__f, _partition)
+    return _map(__f, _partition)

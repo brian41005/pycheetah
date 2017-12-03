@@ -7,15 +7,14 @@ import re
 import sys
 import time
 import unicodedata
-from multiprocessing import Pool, Process
 
 import requests
 from bs4 import BeautifulSoup
 
+import pycheetah
 
 pkg_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(pkg_dir)
-import pycheetah
 
 Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
@@ -134,11 +133,11 @@ if __name__ == '__main__':
     result = pycheetah.start(all_urls[-100:], DailyPageManager)
     print(time.time() - ts)
 
-    # all_news_url = []
-    # for i in result:
-    #     all_news_url.extend(i['urls'])
-    # result = pycheetah.start(all_news_url, NewsPageManager)
+    all_news_url = []
+    for i in result:
+        all_news_url.extend(i['urls'])
+    result = pycheetah.start(all_news_url, NewsPageManager)
 
-    # cost_time = time.time() - ts
-    # print(cost_time)
-    # print(cost_time / len(result))
+    cost_time = time.time() - ts
+    print('time:%.6f, %d data, avg:%.6f' %
+          (cost_time, len(result), cost_time / len(result)))

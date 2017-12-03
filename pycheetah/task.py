@@ -1,5 +1,5 @@
 import logging
-from queue import Empty, Full, PriorityQueue, Queue
+from queue import PriorityQueue
 
 __all__ = ['TaskManager']
 

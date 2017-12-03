@@ -1,9 +1,9 @@
 # coding: utf-8
-import calendar
 import logging
 import os
 import sys
 from datetime import datetime, timedelta
+
 __all__ = ['gen_urls', 'partition', 'init_logger']
 
 
