@@ -40,7 +40,7 @@ def gen_urls(startdate, enddate, category):
             yield 'https://www.theguardian.com/%s/%s/all' % (c, d)
 
 
-def init_logger(logdir, console=True):
+def init_logger(logdir=None, console=True):
     logging.getLogger().setLevel(logging.DEBUG)
     del logging.getLogger().handlers[:]
 
@@ -55,10 +55,11 @@ def init_logger(logdir, console=True):
         logging.getLogger().addHandler(consoleLogger)
 
     filename = '%s.log' % datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
-    logpath = os.path.join(logdir, filename)
-    fileLogger = logging.FileHandler(logpath)
-    fileLogger.setLevel(logging.INFO)
-    fileLogger.setFormatter(formatter)
-    logging.getLogger().addHandler(fileLogger)
+    if logdir:
+        logpath = os.path.join(logdir, filename)
+        fileLogger = logging.FileHandler(logpath)
+        fileLogger.setLevel(logging.INFO)
+        fileLogger.setFormatter(formatter)
+        logging.getLogger().addHandler(fileLogger)
     logging.info('You got (%s) logging handler' %
                  str(logging.getLogger().handlers))

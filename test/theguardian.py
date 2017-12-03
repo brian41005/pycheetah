@@ -23,7 +23,7 @@ Classification = ['world', 'politics', 'sport', 'football', 'culture',
 all_urls = [i for i in pycheetah.gen_urls('2010/1/1',
                                           '2017/12/1',
                                           Classification)]
-all_urls_partition = [i for i in pycheetah.partition(all_urls[-1000:], 8)]
+all_urls_partition = [i for i in pycheetah.partition(all_urls[-200:], 8)]
 print(len(all_urls))
 news_list = ['https://www.theguardian.com/business/2014/may/25/astrazeneca-free-pfizer-for-now',
              'https://www.theguardian.com/world/2010/feb/23/nicaragua-cancer-treatment-abortion',
@@ -130,7 +130,7 @@ class NewsPageManager(pycheetah.TaskManager):
 
 def f(args):
     l, taskManager = args
-    num_thread = 10
+    num_thread = 25
     ts = time.time()
     manager = taskManager(l, num_thread)
     manager.start()
@@ -138,8 +138,8 @@ def f(args):
 
 
 if __name__ == '__main__':
-    CORE = 8
-    pycheetah.init_logger('.')
+    CORE = 6
+    pycheetah.init_logger()
     ts = time.time()
     with Pool(CORE) as p:
         temp = list(itertools.chain(*p.map(f, [(i, DailyPageManager)
@@ -154,4 +154,5 @@ if __name__ == '__main__':
         temp = list(itertools.chain(*p.map(f, [(i, NewsPageManager)
                                                for i in all_news_url])))
     cost_time = time.time() - ts
+    print(cost_time)
     print(cost_time / len(temp))

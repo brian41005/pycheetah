@@ -4,20 +4,6 @@ from heapq import heappop, heappush
 from queue import Empty, Full, PriorityQueue, Queue
 
 
-# class TaskQueue(Queue):
-#     def _init(self, maxsize):
-#         self.queue = []
-
-#     def _qsize(self):
-#         return len(self.queue)
-
-#     def _put(self, item):
-#         heappush(self.queue, item)
-
-#     def _get(self):
-#         return heappop(self.queue)
-
-
 class TaskManager:
     __page_class__ = None
 
@@ -42,11 +28,45 @@ class TaskManager:
                     page = self.queue.get()
                     need_to_break = page.is_alive()
                     self.result.append(page.join())
-                    print(page.url, 'Done')
+                    logging.info(page.url)
                     if need_to_break:
                         break
 
         while not self.queue.empty():
             page = self.queue.get()
             self.result.append(page.join())
-            print(page.url, 'Done')
+            logging.info(page.url)
+
+
+class TaskManager2:
+    __page_class__ = None
+
+    def __new__(cls, *args, **kwargs):
+        TaskManager.__page_class__ = cls.__page_class__
+        return super(TaskManager2, cls).__new__(cls)
+
+    def __init__(self, urls, num_thread=1):
+        self.queue = PriorityQueue(maxsize=num_thread)
+        self.urls = urls
+        self.num_thread = num_thread
+        self.result = []
+
+    def start(self):
+        for i, url in enumerate(self.urls):
+            newpage = TaskManager.__page_class__(str(i), url)
+            newpage.start()
+            self.queue.put(newpage)
+
+            if self.queue.full():
+                while not self.queue.empty():
+                    page = self.queue.get()
+                    if page.is_alive():
+                        self.queue.put(page)
+                    else:
+                        self.result.append(page.join())
+                        logging.info(page.url)
+
+        while not self.queue.empty():
+            page = self.queue.get()
+            self.result.append(page.join())
+            logging.info(page.url)
