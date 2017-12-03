@@ -6,7 +6,7 @@ import threading
 import time
 from collections import defaultdict
 from functools import total_ordering
-from multiprocessing import Process, Pool
+from multiprocessing import Process, Pool, Queue
 
 from . import utils
 
@@ -60,18 +60,39 @@ class Page(threading.Thread):
         return self.is_alive() <= other.is_alive()
 
 
-def __f(args):
-    l, taskManager = args
-    ts = time.time()
+def __f(args, *, queue=None):
+    l, taskManager = args[0], args[1]
+
     manager = taskManager(l, NUM_THREAD)
     manager.start()
-    return manager.result
+    if queue:
+        queue.put(manager.result)
+    else:
+        return manager.result
+
+
+def _map(f, partition):
+    temp_result = []
+    with Pool(processes=CORE) as pool:
+        for i in pool.imap_unordered(f, partition):
+            temp_result.extend(i)
+    return temp_result
+
+
+def _map2(f, partition):
+    q = Queue()
+    temp_result = []
+    jobs = []
+    for p in partition:
+        jobs.append(Process(target=__f, args=(p,), kwargs={'queue': q}))
+        jobs[-1].start()
+    for i in range(CORE):
+        temp_result.extend(q.get())
+    for j in jobs:
+        j.join()
+    return temp_result
 
 
 def start(urls, page_class):
     _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
-    temp_result = []
-    with Pool(processes=CORE) as pool:
-        for i in pool.imap_unordered(__f, _partition):
-            temp_result.extend(i)
-    return temp_result
+    return _map2(__f, _partition)
