@@ -1,5 +1,6 @@
 # coding: utf-8
 # this is a example for The Guardian web
+
 import os
 import re
 import sys
@@ -23,8 +24,7 @@ Classification = ['world', 'politics', 'sport', 'football', 'culture',
 all_urls = [i for i in pycheetah.gen_urls('2010/1/1',
                                           '2017/12/1',
                                           Classification)]
-all_urls_partition = [i for i in pycheetah.partition(all_urls[-200:], 8)]
-print(len(all_urls))
+
 news_list = ['https://www.theguardian.com/business/2014/may/25/astrazeneca-free-pfizer-for-now',
              'https://www.theguardian.com/world/2010/feb/23/nicaragua-cancer-treatment-abortion',
              'https://www.theguardian.com/business/2010/feb/23/protesters-blockade-greek-stock-exchange',
@@ -128,31 +128,17 @@ class NewsPageManager(pycheetah.TaskManager):
     __page_class__ = NewsPage
 
 
-def f(args):
-    l, taskManager = args
-    num_thread = 25
-    ts = time.time()
-    manager = taskManager(l, num_thread)
-    manager.start()
-    return manager.result
-
-
 if __name__ == '__main__':
-    CORE = 6
+
     pycheetah.init_logger()
     ts = time.time()
-    with Pool(CORE) as p:
-        temp = list(itertools.chain(*p.map(f, [(i, DailyPageManager)
-                                               for i in all_urls_partition])))
+    result = pycheetah.start(all_urls[-100:], DailyPageManager)
     print(time.time() - ts)
     all_news_url = []
-    for i in temp:
+    for i in result:
         all_news_url.extend(i['urls'])
-    # print(all_news_url)
-    all_news_url = [i for i in pycheetah.partition(all_news_url, CORE)]
-    with Pool(CORE) as p:
-        temp = list(itertools.chain(*p.map(f, [(i, NewsPageManager)
-                                               for i in all_news_url])))
+    result = pycheetah.start(all_news_url, NewsPageManager)
+
     cost_time = time.time() - ts
     print(cost_time)
-    print(cost_time / len(temp))
+    print(cost_time / len(result))
