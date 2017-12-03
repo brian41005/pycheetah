@@ -6,7 +6,7 @@ import threading
 import time
 from collections import defaultdict
 from functools import total_ordering
-from multiprocessing import Pool
+from multiprocessing import Process, Pool
 
 from . import utils
 
@@ -53,9 +53,6 @@ class Page(threading.Thread):
         super(Page, self).join()
         return self.work_result
 
-    def is_alive(self):
-        return super(Page, self).is_alive()
-
     def __lt__(self, other):
         return self.is_alive() < other.is_alive()
 
@@ -73,6 +70,8 @@ def __f(args):
 
 def start(urls, page_class):
     _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
-    with Pool(CORE) as p:
-        temp_result = list(itertools.chain(*p.map(__f, _partition)))
+    temp_result = []
+    with Pool(processes=CORE) as pool:
+        for i in pool.imap_unordered(__f, _partition):
+            temp_result.extend(i)
     return temp_result

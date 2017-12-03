@@ -1,6 +1,4 @@
 import logging
-import threading
-from heapq import heappop, heappush
 from queue import Empty, Full, PriorityQueue, Queue
 
 __all__ = ['TaskManager']

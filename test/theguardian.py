@@ -1,15 +1,14 @@
 # coding: utf-8
 # this is a example for The Guardian web
 
+import itertools
 import os
 import re
 import sys
 import time
-import logging
 import unicodedata
-import unittest
-from multiprocessing import Process, Pool
-import itertools
+from multiprocessing import Pool, Process
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -134,11 +133,12 @@ if __name__ == '__main__':
     ts = time.time()
     result = pycheetah.start(all_urls[-100:], DailyPageManager)
     print(time.time() - ts)
-    all_news_url = []
-    for i in result:
-        all_news_url.extend(i['urls'])
-    result = pycheetah.start(all_news_url, NewsPageManager)
 
-    cost_time = time.time() - ts
-    print(cost_time)
-    print(cost_time / len(result))
+    # all_news_url = []
+    # for i in result:
+    #     all_news_url.extend(i['urls'])
+    # result = pycheetah.start(all_news_url, NewsPageManager)
+
+    # cost_time = time.time() - ts
+    # print(cost_time)
+    # print(cost_time / len(result))
