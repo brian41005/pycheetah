@@ -44,7 +44,7 @@ class Page(threading.Thread):
                 for name, worker in self.workers.items():
                     self.work_result[name] = worker(response)
         except Exception as msg:
-            logging.error(msg)
+            logging.error('%s [%s]' % (msg, self.url))
 
     def join(self):
         super(Page, self).join()
