@@ -55,8 +55,8 @@ def init_logger(logdir=None, console=True):
         consoleLogger.setFormatter(formatter)
         logging.getLogger().addHandler(consoleLogger)
 
-    filename = '%s.log' % datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
     if logdir:
+        filename = '%s.log' % datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
         logpath = os.path.join(logdir, filename)
         fileLogger = logging.FileHandler(logpath)
         fileLogger.setLevel(logging.INFO)

@@ -33,7 +33,8 @@ class Page(threading.Thread):
     def __init__(self, name, url):
         super(Page, self).__init__(name=name, daemon=True)
         self.url = url
-        self.workers = self.work_result = defaultdict(None)
+        self.workers = {}
+        self.work_result = defaultdict(None)
         self.request = Page.__request__
         for func in Page.__worker__:
             name = func.__name__.replace('get_', '')
@@ -71,8 +72,7 @@ def __f(args):
 
 
 def start(urls, page_class):
-
+    _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
     with Pool(CORE) as p:
-        _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
         temp_result = list(itertools.chain(*p.map(__f, _partition)))
     return temp_result
