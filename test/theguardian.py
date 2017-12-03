@@ -11,10 +11,10 @@ import unicodedata
 import requests
 from bs4 import BeautifulSoup
 
-import pycheetah
 
 pkg_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(pkg_dir)
+import pycheetah
 
 Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
