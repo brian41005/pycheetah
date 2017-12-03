@@ -79,10 +79,10 @@ def __f(args, *, queue=None):
 def _map(f, partition):
     q = Queue()
     temp_result = []
-    jobs = [Process(target=__f,
-                    args=(p,),
-                    kwargs={'queue': q})
+    jobs = [Process(target=__f, daemon=True,
+                    args=(p,), kwargs={'queue': q})
             for p in partition]
+
     for j in jobs:
         j.start()
     for i in range(CORE):
