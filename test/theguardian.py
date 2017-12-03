@@ -19,28 +19,9 @@ import pycheetah
 Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
                   'technology', 'travel']
-all_urls = [i for i in pycheetah.gen_urls('2010/1/1',
-                                          '2017/12/1',
-                                          Classification)]
-
-news_list = ['https://www.theguardian.com/business/2014/may/25/astrazeneca-free-pfizer-for-now',
-             'https://www.theguardian.com/world/2010/feb/23/nicaragua-cancer-treatment-abortion',
-             'https://www.theguardian.com/business/2010/feb/23/protesters-blockade-greek-stock-exchange',
-             'https://www.theguardian.com/world/2010/feb/23/us-army-chief-end-anti-gay-rules',
-             'https://www.theguardian.com/world/2010/feb/23/china-denies-google-cyber-attacks',
-             'https://www.theguardian.com/world/2010/feb/23/bomb-maker-stay-in-service-iraq',
-             'https://www.theguardian.com/world/2010/feb/23/dennis-brutus-obituary',
-             'https://www.theguardian.com/world/2010/feb/23/corrie-death-law-case',
-             'https://www.theguardian.com/world/2010/feb/23/kenya-president-prime-minister-meet',
-             'https://www.theguardian.com/world/2010/feb/23/british-woman-killed-swat-valley',
-             'https://www.theguardian.com/world/2010/feb/23/china-tells-schools-ban-oxfam',
-             'https://www.theguardian.com/world/2010/feb/23/indonesia-ranger-komodo-dragon-attack',
-             'https://www.theguardian.com/world/2010/feb/23/british-plane-spotters-face-jail-india',
-             'https://www.theguardian.com/world/2010/feb/23/32-missing-madeira-landslides-search',
-             'https://www.theguardian.com/world/julian-borger-global-security-blog/2010/feb/23/iran-iaea-letter',
-             'https://www.theguardian.com/world/2010/feb/23/taliban-captured-pakistan-abdul-kabir',
-             'https://www.theguardian.com/world/blog/audio/2010/feb/22/guardian-daily-podcast1',
-             'https://www.theguardian.com/world/picture/2010/feb/23/usa-air-transport']
+all_daily_urls = [i for i in pycheetah.gen_urls('2010/1/1',
+                                                '2017/12/1',
+                                                Classification)]
 
 
 def rm_url_tag(seq, pattern='<.*?>'):
@@ -130,13 +111,14 @@ if __name__ == '__main__':
 
     pycheetah.init_logger()
     ts = time.time()
-    result = pycheetah.start(all_urls[-100:], DailyPageManager)
+    result = pycheetah.start(all_daily_urls[-100:], DailyPageManager)
     print(time.time() - ts)
 
-    all_news_url = []
+    all_news_urls = []
     for i in result:
-        all_news_url.extend(i['urls'])
-    result = pycheetah.start(all_news_url, NewsPageManager)
+        if i['urls'] is not None:
+            all_news_urls.extend(i['urls'])
+    result = pycheetah.start(all_news_urls, NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
