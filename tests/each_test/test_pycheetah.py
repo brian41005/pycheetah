@@ -10,7 +10,8 @@ from multiprocessing import Process, Pool
 
 import requests
 from bs4 import BeautifulSoup
-
+pkg_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.join(pkg_dir, 'example'))
 import theguardian
 
 
@@ -35,33 +36,27 @@ class TestPage(unittest.TestCase):
                           'https://www.theguardian.com/world/blog/audio/2010/feb/22/guardian-daily-podcast1',
                           'https://www.theguardian.com/world/picture/2010/feb/23/usa-air-transport']
 
-    # def test_Page(self):
+    def test_Page(self):
 
-    #     pages = [theguardian.NewsPage(str(i), url)
-    #              for i, url in enumerate(self.news_list)]
-    #     for page in pages:
-    #         page.start()
-    #     for page in pages:
-    #         result = page.join()
-    #         for k, v in result.items():
-    #             try:
-    #                 self.assertIsNotNone(v, (page.url, {k: v}))
-    #             except AssertionError as msg:
-    #                 print(msg)
+        pages = [theguardian.NewsPage(str(i), url)
+                 for i, url in enumerate(self.news_list)]
+        for page in pages:
+            page.start()
+        for page in pages:
+            result = page.join()
+            for k, v in result.items():
+                try:
+                    self.assertIsNotNone(v, (page.url, {k: v}))
+                except AssertionError as msg:
+                    print(msg)
 
     def test_TaskManager(self):
         num_thread = 20
         batch = 50
-        urls_list = theguardian.all_urls[-batch:]
+        urls_list = theguardian.all_daily_urls[-batch:]
         print(len(urls_list))
         ts = time.time()
         manager = theguardian.DailyPageManager(urls_list, num_thread)
         manager.start()
-        # print(manager.result)
         print((time.time() - ts))
         print((time.time() - ts) / batch)
-
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)
-    pass

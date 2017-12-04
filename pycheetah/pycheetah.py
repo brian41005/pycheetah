@@ -7,7 +7,7 @@ from multiprocessing import Process, Queue
 from . import utils
 
 __all__ = ['Page', 'start']
-CORE = os.cpu_count() if os.cpu_count() else 1
+CORE = max(1, os.cpu_count())
 NUM_THREAD = 25
 
 

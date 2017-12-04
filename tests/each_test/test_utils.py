@@ -5,9 +5,8 @@ import os
 from bs4 import BeautifulSoup
 import requests
 import re
-
-pkg_dir = os.path.dirname(os.path.dirname(__file__))
-sys.path.append(pkg_dir)
+pkg_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.join(pkg_dir, 'example'))
 import pycheetah
 
 
@@ -30,7 +29,3 @@ class TestUtils(unittest.TestCase):
                 '2007/1/1',
                 '2017/5/32',
                 Classification)]
-
-
-if __name__ == '__main__':
-    unittest.main(verbosity=3)
