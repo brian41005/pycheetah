@@ -19,9 +19,10 @@ import pycheetah
 Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
                   'technology', 'travel']
-all_daily_urls = [i for i in pycheetah.gen_urls('2010/1/1',
+all_daily_urls = [i for i in pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
+                                                '2010/1/1',
                                                 '2017/12/1',
-                                                Classification)]
+                                                product=[Classification, 'date'])]
 
 
 def rm_url_tag(seq, pattern='<.*?>'):

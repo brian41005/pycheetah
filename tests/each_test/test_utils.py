@@ -16,16 +16,31 @@ class TestUtils(unittest.TestCase):
             self.assertEqual(
                 i, len(list(pycheetah.partition(list(range(10)), i))))
 
-    def test_gen_urls(self):
-        Classification = ['world']
-        l = [i for i in pycheetah.gen_urls('2007/1/1',
-                                           '2017/5/31', Classification)]
-        self.assertEqual(3804, len(l))
+    def test_gen_urls_for_guardian(self):
+        Classification = ['world', 'politics', 'sport', 'football', 'culture',
+                          'business', 'lifeandstyle', 'fashion', 'environment',
+                          'technology', 'travel']
+
+        l = [i for i in pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
+                                           '2017/1/1',
+                                           '2017/1/5',
+                                           product=[Classification, 'date'])]
+        self.assertEqual(55, len(l))
+
+    def test_gen_urls_for_nyt(self):
+        l = [i for i in pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
+                                           '2017/1/1',
+                                           '2017/1/5',
+                                           date_format='%Y/%m/%d',
+                                           product=['date'])]
+        print(l)
+        self.assertEqual(5, len(l))
 
     def test_get_urls_exception(self):
         Classification = ['world']
         with self.assertRaises(ValueError):
             [i for i in pycheetah.gen_urls(
-                '2007/1/1',
-                '2017/5/32',
-                Classification)]
+                'https://www.theguardian.com/%s/%s/all',
+                '2017/1/0',
+                '2017/1/5',
+                product=[Classification, 'date'])]

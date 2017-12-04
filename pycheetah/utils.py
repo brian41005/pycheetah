@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta
-
+import itertools
 __all__ = ['gen_urls', 'partition', 'init_logger']
 
 
@@ -24,21 +24,30 @@ def partition(container, n):
     yield container[start:]
 
 
-def gen_urls(startdate, enddate, category):
-    '''
+def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date']):
+    '''general generator for news url
+
+    url: string, like 'https://www.theguardian.com/%s/%s/all'
+
     startdate: string, like '2007/1/1'
 
     enddate: string, like '2017/5/31'
 
-    category: list with string elements
+    date_format: format, '%Y/%m/%d'
+
+    product: ['date'] or ['date', other, other, ...]
+
     '''
     start = datetime.strptime(startdate, '%Y/%m/%d')
     end = datetime.strptime(enddate, '%Y/%m/%d')
-    datelist = [(start + timedelta(days=x)).strftime('%Y/%b/%d').lower()
+    datelist = [(start + timedelta(days=x)).strftime(date_format).lower()
                 for x in range(0, (end - start).days + 1)]
-    for d in datelist:
-        for c in category:
-            yield 'https://www.theguardian.com/%s/%s/all' % (c, d)
+
+    date_index = product.index('date')
+    product[date_index] = datelist
+    product = list(itertools.product(*product))
+    for each_prod in product:
+        yield url % each_prod
 
 
 def init_logger(logdir=None, console=True):

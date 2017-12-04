@@ -51,8 +51,8 @@ class TestPage(unittest.TestCase):
                     print(msg)
 
     def test_TaskManager(self):
-        num_thread = 20
-        batch = 50
+        num_thread = 10
+        batch = 10
         urls_list = theguardian.all_daily_urls[-batch:]
         print(len(urls_list))
         ts = time.time()
