@@ -12,17 +12,17 @@ import requests
 from bs4 import BeautifulSoup
 
 
-pkg_dir = os.path.dirname(os.path.dirname(__file__))
+pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
 
 Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
                   'technology', 'travel']
-all_daily_urls = [i for i in pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
-                                                '2010/1/1',
-                                                '2017/12/1',
-                                                product=[Classification, 'date'])]
+all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
+                                         '2010/1/1',
+                                         '2017/12/1',
+                                         product=[Classification, 'date']))
 
 
 def rm_url_tag(seq, pattern='<.*?>'):

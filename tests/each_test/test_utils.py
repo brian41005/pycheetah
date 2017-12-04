@@ -33,7 +33,6 @@ class TestUtils(unittest.TestCase):
                                            '2017/1/5',
                                            date_format='%Y/%m/%d',
                                            product=['date'])]
-        print(l)
         self.assertEqual(5, len(l))
 
     def test_get_urls_exception(self):
