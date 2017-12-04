@@ -39,6 +39,29 @@ def process(article):
     return article
 
 
+class DailyPage(pycheetah.Page):
+    def request(url):
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
+            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        soup = BeautifulSoup(requests.get(url,
+                                          timeout=5,
+                                          headers=headers).text,
+                             'lxml')
+        return soup
+
+    def get_urls(soup):
+        urls = []
+        for news_block in soup.find_all('div',
+                                        attrs={'class': 'fc-item__content'}):
+            for each_block in news_block.find_all('a', href=True):
+                if each_block['href'] != '' \
+                        and each_block['href'] is not None \
+                        and each_block['href'].find('https://www.theguardian.com') != -1:
+                    urls.append(each_block['href'])
+        return urls
+
+
 class NewsPage(pycheetah.Page):
     def request(url):
         headers = {
@@ -75,29 +98,6 @@ class NewsPage(pycheetah.Page):
 
     def get_category(soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
-
-
-class DailyPage(pycheetah.Page):
-    def request(url):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        soup = BeautifulSoup(requests.get(url,
-                                          timeout=5,
-                                          headers=headers).text,
-                             'lxml')
-        return soup
-
-    def get_urls(soup):
-        urls = []
-        for news_block in soup.find_all('div',
-                                        attrs={'class': 'fc-item__content'}):
-            for each_block in news_block.find_all('a', href=True):
-                if each_block['href'] != '' \
-                        and each_block['href'] is not None \
-                        and each_block['href'].find('https://www.theguardian.com') != -1:
-                    urls.append(each_block['href'])
-        return urls
 
 
 class DailyPageManager(pycheetah.TaskManager):
