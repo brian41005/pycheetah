@@ -20,7 +20,7 @@ Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'business', 'lifeandstyle', 'fashion', 'environment',
                   'technology', 'travel']
 all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
-                                         '2010/1/1',
+                                         '2017/1/1',
                                          '2017/12/1',
                                          product=[Classification, 'date']))
 
@@ -45,7 +45,7 @@ class DailyPage(pycheetah.Page):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         soup = BeautifulSoup(requests.get(url,
-                                          timeout=5,
+                                          timeout=10,
                                           headers=headers).text,
                              'lxml')
         return soup
@@ -113,13 +113,12 @@ if __name__ == '__main__':
     pycheetah.init_logger()
     ts = time.time()
     result = pycheetah.start(all_daily_urls[-100:], DailyPageManager)
-    print(time.time() - ts)
 
-    all_news_urls = []
-    for i in result:
-        if i['urls'] is not None:
-            all_news_urls.extend(i['urls'])
-    result = pycheetah.start(all_news_urls, NewsPageManager)
+    # all_news_urls = []
+    # for i in result:
+    #     if i['urls'] is not None:
+    #         all_news_urls.extend(i['urls'])
+    # result = pycheetah.start(all_news_urls, NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
