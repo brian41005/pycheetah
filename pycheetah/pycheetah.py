@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 import os
+import time
 import threading
 from multiprocessing import Process, Queue
 
@@ -37,7 +38,11 @@ class Page(threading.Thread):
             self.workers[name] = func
             self.work_result[name] = None
 
+    def started_time(self):
+        return self.started
+
     def run(self):
+        self.started = time.time()
         try:
             response = self.request(self.url)
             if response:
@@ -51,10 +56,12 @@ class Page(threading.Thread):
         return self.work_result
 
     def __lt__(self, other):
-        return self.is_alive() < other.is_alive()
+        return ((self.started, self.is_alive()) <
+                (other.started_time(), other.is_alive()))
 
     def __le__(self, other):
-        return self.is_alive() <= other.is_alive()
+        return ((self.started, self.is_alive()) <=
+                (other.started_time(), other.is_alive()))
 
 
 def __f(args, *, queue=None):

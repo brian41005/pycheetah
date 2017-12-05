@@ -16,11 +16,6 @@ pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
 
-all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                         '2017/1/3', '2017/1/4',
-                                         date_format='%Y/%m/%d',
-                                         product=['date']))
-
 
 class DailyPage(pycheetah.Page):
     def request(url):
@@ -34,14 +29,16 @@ class DailyPage(pycheetah.Page):
     def get_urls(soup):
         urls = []
         acolumn_a = soup.find_all('div',
-                                  attrs={'class': 'columnGroup first'})[2].find_all('a')
-        for i in acolumn_a:
-            urls.append(i['href'])
+                                  attrs={'class': 'columnGroup first'})
+        if len(acolumn_a) > 1:
+            for i in acolumn_a[2].find_all('a'):
+                urls.append(i['href'])
 
         for each_ul in soup.find_all('ul',
                                      attrs={'class': 'headlinesOnly multiline flush'})[:-1]:
-            for i in each_ul.find_all('a'):
-                urls.append(i['href'])
+            if each_ul:
+                for i in each_ul.find_all('a'):
+                    urls.append(i['href'])
 
         return urls
 
@@ -67,8 +64,20 @@ class NewsPage(pycheetah.Page):
 
         return name
 
+    def get_article(soup):
+        p = soup.find_all(
+            'p', attrs={'class': 'story-body-text story-content'})
+        article = ''
+        for each_p in p:
+            article += each_p.text
+        if article:
+            return article
+
     def get_category(soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[6]
+
+    def get_urls(soup):
+        return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
 class DailyPageManager(pycheetah.TaskManager):
@@ -80,7 +89,10 @@ class NewsPageManager(pycheetah.TaskManager):
 
 
 if __name__ == '__main__':
-
+    all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
+                                             '2010/1/1', '2017/12/1',
+                                             date_format='%Y/%m/%d',
+                                             product=['date']))
     pycheetah.init_logger()
     ts = time.time()
     result = pycheetah.start(all_daily_urls, DailyPageManager)
