@@ -8,7 +8,7 @@ from . import utils
 
 __all__ = ['Page', 'start']
 CORE = max(1, os.cpu_count())
-NUM_THREAD = 25
+NUM_THREAD = 15
 
 
 class Page(threading.Thread):

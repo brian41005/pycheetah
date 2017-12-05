@@ -17,7 +17,7 @@ sys.path.append(pkg_dir)
 import pycheetah
 
 all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                         '2017/1/1', '2017/12/1',
+                                         '2017/1/1', '2017/1/2',
                                          date_format='%Y/%m/%d',
                                          product=['date']))
 
@@ -52,12 +52,12 @@ class NewsPage(pycheetah.Page):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         soup = BeautifulSoup(requests.get(url,
-                                          timeout=5,
+                                          timeout=1,
                                           headers=headers).text,
                              'lxml')
         return soup
 
-    def get_name(soup):
+    def get_title(soup):
         name = soup.find('h6', attrs={'class': 'kicker'})
         if name:
             name = name.text
@@ -66,19 +66,6 @@ class NewsPage(pycheetah.Page):
                 'span', attrs={'class': 'Heading1-headline--8Qzcc balance-text'}).text
 
         return name
-
-    # def get_article(soup):
-    #     article = ''
-    #     for articleBody in soup.find_all('div',
-    #                                      attrs={'class': 'content__article-body from-content-api js-article__body',
-    #                                             'itemprop': 'articleBody',
-    #                                             'data-test-id': 'article-review-body'
-    #                                             }):
-
-    #         for each_p in articleBody.find_all('p'):
-    #             article += process(rm_url_tag(each_p.text))
-
-    #     return article
 
     def get_category(soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[6]
