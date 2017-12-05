@@ -21,7 +21,7 @@ Classification = ['world', 'politics', 'sport', 'football', 'culture',
                   'technology', 'travel']
 all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                          '2017/1/1',
-                                         '2017/12/1',
+                                         '2017/1/2',
                                          product=[Classification, 'date']))
 
 
@@ -114,11 +114,11 @@ if __name__ == '__main__':
     ts = time.time()
     result = pycheetah.start(all_daily_urls[-100:], DailyPageManager)
 
-    # all_news_urls = []
-    # for i in result:
-    #     if i['urls'] is not None:
-    #         all_news_urls.extend(i['urls'])
-    # result = pycheetah.start(all_news_urls, NewsPageManager)
+    all_news_urls = []
+    for i in result:
+        if i['urls'] is not None:
+            all_news_urls.extend(i['urls'])
+    result = pycheetah.start(all_news_urls, NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
