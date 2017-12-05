@@ -27,8 +27,14 @@ class TaskManager:
                 while not self.queue.empty():
                     page = self.queue.get()
                     need_to_break = page.is_alive()
-                    self.result.append(page.join())
-                    logging.info(page.url)
+                    result = page.join(timeout=0.5)
+                    if result:
+                        self.result.append(result)
+                        logging.info(page.url)
+                    else:
+                        self.queue.put(page)
+                        logging.info(page.url + ' [TIMEOUT]')
+
                     if need_to_break:
                         break
 

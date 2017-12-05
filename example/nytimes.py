@@ -17,7 +17,7 @@ sys.path.append(pkg_dir)
 import pycheetah
 
 all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                         '2017/1/1', '2017/1/2',
+                                         '2017/1/3', '2017/1/4',
                                          date_format='%Y/%m/%d',
                                          product=['date']))
 
@@ -52,7 +52,7 @@ class NewsPage(pycheetah.Page):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         soup = BeautifulSoup(requests.get(url,
-                                          timeout=3,
+                                          timeout=7,
                                           headers=headers).text,
                              'lxml')
         return soup

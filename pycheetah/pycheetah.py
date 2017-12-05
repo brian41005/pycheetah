@@ -46,8 +46,8 @@ class Page(threading.Thread):
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
 
-    def join(self):
-        super(Page, self).join()
+    def join(self, *args, **kwargs):
+        super(Page, self).join(*args, **kwargs)
         return self.work_result
 
     def __lt__(self, other):
