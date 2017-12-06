@@ -15,7 +15,7 @@ class Result:
             all_ = []
             for i in self.result:
                 if key in i:
-                    if i[key] is not None:
+                    if i[key]:
                         all_.extend(i[key])
             return all_
         elif type(key) is int:
