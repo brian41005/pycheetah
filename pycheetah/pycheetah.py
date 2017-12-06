@@ -2,6 +2,7 @@
 import logging
 import os
 import threading
+import random
 import time
 from multiprocessing import Process, Queue
 
@@ -41,11 +42,13 @@ class Page(threading.Thread):
         self.work_result = {}
         for func_name, _ in Page.__worker__.items():
             self.work_result[func_name] = None
+        self.started = time.time()
 
     def started_time(self):
         return self.started
 
     def run(self):
+        # time.sleep(random.random())
         self.started = time.time()
         try:
             response = Page.__request__(self, self.url)
