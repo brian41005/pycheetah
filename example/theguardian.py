@@ -16,14 +16,6 @@ pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
 
-Classification = ['world', 'politics', 'sport', 'football', 'culture',
-                  'business', 'lifeandstyle', 'fashion', 'environment',
-                  'technology', 'travel']
-all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
-                                         '2017/1/1',
-                                         '2017/1/2',
-                                         product=[Classification, 'date']))
-
 
 def rm_url_tag(seq, pattern='<.*?>'):
     return re.sub(re.compile(pattern), '', seq)
@@ -109,10 +101,19 @@ class NewsPageManager(pycheetah.TaskManager):
 
 
 if __name__ == '__main__':
+    pycheetah.CORE = 1
+    pycheetah.NUM_THREAD = 1
+    Classification = ['world', 'politics', 'sport', 'football', 'culture',
+                      'business', 'lifeandstyle', 'fashion', 'environment',
+                      'technology', 'travel']
+    all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
+                                             '2017/1/1',
+                                             '2017/1/2',
+                                             product=[Classification, 'date']))
 
     pycheetah.init_logger()
     ts = time.time()
-    result = pycheetah.start(all_daily_urls[-100:], DailyPageManager)
+    result = pycheetah.start(all_daily_urls, DailyPageManager)
 
     all_news_urls = []
     for i in result:
