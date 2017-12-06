@@ -32,7 +32,7 @@ def process(article):
 
 
 class DailyPage(pycheetah.Page):
-    def request(url):
+    def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -42,7 +42,7 @@ class DailyPage(pycheetah.Page):
                              'lxml')
         return soup
 
-    def get_urls(soup):
+    def get_urls(self, soup):
         urls = []
         for news_block in soup.find_all('div',
                                         attrs={'class': 'fc-item__content'}):
@@ -55,7 +55,7 @@ class DailyPage(pycheetah.Page):
 
 
 class NewsPage(pycheetah.Page):
-    def request(url):
+    def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -65,7 +65,7 @@ class NewsPage(pycheetah.Page):
                              'lxml')
         return soup
 
-    def get_name(soup):
+    def get_name(self, soup):
         name = soup.find('h1',
                          attrs={'class': 'content__headline',
                                 'itemprop': 'headline'})
@@ -75,7 +75,7 @@ class NewsPage(pycheetah.Page):
         # logging.exception(errmsg, soup.find(
         # 'link', attrs={'rel': 'canonical'})['href'])
 
-    def get_article(soup):
+    def get_article(self, soup):
         article = ''
         for articleBody in soup.find_all('div',
                                          attrs={'class': 'content__article-body from-content-api js-article__body',
@@ -88,7 +88,7 @@ class NewsPage(pycheetah.Page):
 
         return article
 
-    def get_category(soup):
+    def get_category(self, soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 

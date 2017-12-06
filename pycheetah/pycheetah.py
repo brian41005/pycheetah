@@ -14,34 +14,33 @@ NUM_THREAD = 15
 
 
 class Page(threading.Thread):
-    __worker__ = []
+    __worker__ = {}
     __request__ = None
 
     @classmethod
-    def __get_subclass_method(self):
-        for func_str in (set(dir(self)) - set(dir(Page))):
-            func = getattr(self, func_str)
+    def __get_subclass_method(cls):
+        pass
+
+    def __new__(cls, *args, **kwargs):
+        for func_str in (set(dir(cls)) - set(dir(Page))):
+            func = getattr(cls, func_str)
             if func.__name__.startswith('get_') and callable(func):
-                Page.__worker__.append(func)
-            if func.__name__ == 'request' and callable(func):
+                name = func.__name__.replace('get_', '')
+                Page.__worker__[name] = func
+            elif func.__name__ == 'request' and callable(func):
                 Page.__request__ = func
+
         if not Page.__request__ and not callable(Page.__request__):
             raise NotImplementedError('request method not found!')
 
-    def __new__(cls, *args, **kwargs):
-        cls.__get_subclass_method()
         return super(Page, cls).__new__(cls)
 
     def __init__(self, name, url):
         super(Page, self).__init__(name=name, daemon=True)
         self.url = url
-        self.workers = {}
         self.work_result = {}
-        self.request = Page.__request__
-        for func in Page.__worker__:
-            name = func.__name__.replace('get_', '')
-            self.workers[name] = func
-            self.work_result[name] = None
+        for func_name, _ in Page.__worker__.items():
+            self.work_result[func_name] = None
 
     def started_time(self):
         return self.started
@@ -49,10 +48,10 @@ class Page(threading.Thread):
     def run(self):
         self.started = time.time()
         try:
-            response = self.request(self.url)
+            response = Page.__request__(self, self.url)
             if response:
-                for name, worker in self.workers.items():
-                    self.work_result[name] = worker(response)
+                for worker_name, worker in Page.__worker__.items():
+                    self.work_result[worker_name] = worker(self, response)
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
 

@@ -18,7 +18,7 @@ import pycheetah
 
 
 class DailyPage(pycheetah.Page):
-    def request(url):
+    def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -26,7 +26,7 @@ class DailyPage(pycheetah.Page):
                                           headers=headers).text,
                              'lxml')
 
-    def get_urls(soup):
+    def get_urls(self, soup):
         urls = []
         acolumn_a = soup.find_all('div',
                                   attrs={'class': 'columnGroup first'})
@@ -44,7 +44,7 @@ class DailyPage(pycheetah.Page):
 
 
 class NewsPage(pycheetah.Page):
-    def request(url):
+    def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
@@ -54,7 +54,7 @@ class NewsPage(pycheetah.Page):
                              'lxml')
         return soup
 
-    def get_title(soup):
+    def get_title(self, soup):
         name = soup.find('h6', attrs={'class': 'kicker'})
         if name:
             name = name.text
@@ -64,7 +64,7 @@ class NewsPage(pycheetah.Page):
 
         return name
 
-    def get_article(soup):
+    def get_article(self, soup):
         p = soup.find_all(
             'p', attrs={'class': 'story-body-text story-content'})
         article = ''
@@ -73,10 +73,10 @@ class NewsPage(pycheetah.Page):
         if article:
             return article
 
-    def get_category(soup):
+    def get_category(self, soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[6]
 
-    def get_url(soup):
+    def get_url(self, soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     pycheetah.CORE = 1
     pycheetah.NUM_THREAD = 1
     all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                             '2017/1/1', '2017/1/3',
+                                             '2017/1/1', '2017/1/1',
                                              date_format='%Y/%m/%d',
                                              product=['date']))
     pycheetah.init_logger()
@@ -104,4 +104,4 @@ if __name__ == '__main__':
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(items),
            cost_time / len(items)))
-    # print(items[0])
+    print(items[0])
