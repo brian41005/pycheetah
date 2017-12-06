@@ -1,6 +1,6 @@
 import logging
 from queue import PriorityQueue
-
+from .container import Result
 __all__ = ['TaskManager']
 
 
@@ -15,9 +15,9 @@ class TaskManager:
         self.queue = PriorityQueue(maxsize=num_thread)
         self.urls = urls
         self.num_thread = num_thread
-        self.result = []
 
     def start(self):
+        result = []
         for i, url in enumerate(self.urls):
             newpage = TaskManager.__page_class__(str(i), url)
             newpage.start()
@@ -27,9 +27,9 @@ class TaskManager:
                 while not self.queue.empty():
                     page = self.queue.get()
                     need_to_break = page.is_alive()
-                    result = page.join(timeout=0.5)
-                    if result:
-                        self.result.append(result)
+                    temp_result = page.join(timeout=0.5)
+                    if temp_result:
+                        result.append(temp_result)
                         logging.info(page.url)
                     else:
                         self.queue.put(page)
@@ -40,5 +40,6 @@ class TaskManager:
 
         while not self.queue.empty():
             page = self.queue.get()
-            self.result.append(page.join())
+            result.append(page.join())
             logging.info(page.url)
+        return Result(result)

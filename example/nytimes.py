@@ -76,7 +76,7 @@ class NewsPage(pycheetah.Page):
     def get_category(soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[6]
 
-    def get_urls(soup):
+    def get_url(soup):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
@@ -90,20 +90,16 @@ class NewsPageManager(pycheetah.TaskManager):
 
 if __name__ == '__main__':
     all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                             '2010/1/1', '2017/12/1',
+                                             '2017/1/1', '2017/1/1',
                                              date_format='%Y/%m/%d',
                                              product=['date']))
     pycheetah.init_logger()
     ts = time.time()
     result = pycheetah.start(all_daily_urls, DailyPageManager)
-
-    all_news_urls = []
-    for i in result:
-        if i['urls'] is not None:
-            all_news_urls.extend(i['urls'])
-    result = pycheetah.start(all_news_urls, NewsPageManager)
+    items = pycheetah.start(result['urls'], NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
-          (cost_time, len(result), cost_time / len(result)))
-    print(result[0])
+          (cost_time, len(result),
+           cost_time / len(result)))
+    print(items[0])

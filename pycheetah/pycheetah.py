@@ -1,11 +1,12 @@
 # coding: utf-8
 import logging
 import os
-import time
 import threading
+import time
 from multiprocessing import Process, Queue
 
 from . import utils
+from .container import Result
 
 __all__ = ['Page', 'start']
 CORE = max(1, os.cpu_count())
@@ -16,15 +17,19 @@ class Page(threading.Thread):
     __worker__ = []
     __request__ = None
 
-    def __new__(cls, *args, **kwargs):
-        for func_str in (set(dir(cls)) - set(dir(Page))):
-            func = getattr(cls, func_str)
+    @classmethod
+    def __get_subclass_method(self):
+        for func_str in (set(dir(self)) - set(dir(Page))):
+            func = getattr(self, func_str)
             if func.__name__.startswith('get_') and callable(func):
                 Page.__worker__.append(func)
             if func.__name__ == 'request' and callable(func):
                 Page.__request__ = func
         if not Page.__request__ and not callable(Page.__request__):
             raise NotImplementedError('request method not found!')
+
+    def __new__(cls, *args, **kwargs):
+        cls.__get_subclass_method()
         return super(Page, cls).__new__(cls)
 
     def __init__(self, name, url):
@@ -68,24 +73,16 @@ def __f(args, *, queue=None):
     l, taskManager = args[0], args[1]
 
     manager = taskManager(l, NUM_THREAD)
-    manager.start()
+    result_obj = manager.start()
     if queue:
-        queue.put(manager.result)
+        queue.put(result_obj)
     else:
-        return manager.result
-
-
-# def _map(f, partition):
-#     temp_result = []
-#     with Pool(processes=CORE) as pool:
-#         for i in pool.imap_unordered(f, partition):
-#             temp_result.extend(i)
-#     return temp_result
+        return result_obj
 
 
 def _map(f, partition):
     q = Queue()
-    temp_result = []
+    temp_result = Result()
     jobs = [Process(target=__f, daemon=True,
                     args=(p,), kwargs={'queue': q})
             for p in partition]
