@@ -71,7 +71,7 @@ class NewsPage(pycheetah.Cheetah):
             # logging.exception('[TIMEOUT][%s]' % (url))
             time.sleep(random.random() * 20)
             self.retry()
-        except urllib3.exceptions.MaxRetryError as msg:
+        except requests.exceptions.ConnectionError as msg:
             time.sleep(random.random() * 20)
             self.retry()
         except Exception as msg:
