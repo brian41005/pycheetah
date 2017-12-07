@@ -94,11 +94,11 @@ if __name__ == '__main__':
                                              product=['date']))
     pycheetah.init_logger()
     ts = time.time()
-    result = pycheetah.start(all_daily_urls, DailyPageManager)
-    items = pycheetah.start(result['urls'], NewsPageManager)
+    items = pycheetah.start(all_daily_urls, DailyPageManager)
+    #items = pycheetah.start(result['urls'], NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(items),
            cost_time / len(items)))
-    print(items[0])
+    # print(items[0])

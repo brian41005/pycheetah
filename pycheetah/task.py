@@ -1,15 +1,15 @@
 import logging
 from queue import PriorityQueue
 from .container import Result
-__all__ = ['TaskManager']
+__all__ = ['DefaultTaskManager']
 
 
 class DefaultTaskManager:
     __page_class__ = None
 
     def __new__(cls, *args, **kwargs):
-        TaskManager.__page_class__ = cls.__page_class__
-        return super(TaskManager, cls).__new__(cls)
+        DefaultTaskManager.__page_class__ = cls.__page_class__
+        return super(DefaultTaskManager, cls).__new__(cls)
 
     def __init__(self, urls, num_thread=1):
         self.queue = PriorityQueue(maxsize=num_thread)
@@ -19,7 +19,7 @@ class DefaultTaskManager:
     def start(self):
         result = []
         for i, url in enumerate(self.urls):
-            newpage = TaskManager.__page_class__(str(i), url)
+            newpage = DefaultTaskManager.__page_class__(str(i), url)
             newpage.start()
             self.queue.put(newpage)
 
@@ -30,7 +30,7 @@ class DefaultTaskManager:
                     temp_result = page.join(timeout=0.5)
                     if temp_result:
                         result.append(temp_result)
-                        # logging.info(page.url)
+                        logging.info(page.url)
                     else:
                         self.queue.put(page)
                         logging.info(page.url + ' [TIMEOUT]')
@@ -41,5 +41,5 @@ class DefaultTaskManager:
         while not self.queue.empty():
             page = self.queue.get()
             result.append(page.join())
-            # logging.info(page.url)
+            logging.info(page.url)
         return Result(result)
