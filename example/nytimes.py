@@ -17,7 +17,7 @@ sys.path.append(pkg_dir)
 import pycheetah
 
 
-class DailyPage(pycheetah.Page):
+class DailyPage(pycheetah.Cheetah):
     def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
@@ -43,7 +43,8 @@ class DailyPage(pycheetah.Page):
         return urls
 
 
-class NewsPage(pycheetah.Page):
+class NewsPage(pycheetah.Cheetah):
+
     def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
@@ -79,26 +80,26 @@ class NewsPage(pycheetah.Page):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
-class DailyPageManager(pycheetah.DefaultTaskManager):
-    __page_class__ = DailyPage
+# class DailyPageManager(pycheetah.DefaultTaskManager):
+#     __page_class__ = DailyPage
 
 
-class NewsPageManager(pycheetah.DefaultTaskManager):
-    __page_class__ = NewsPage
+# class NewsPageManager(pycheetah.DefaultTaskManager):
+#     __page_class__ = NewsPage
 
 
 if __name__ == '__main__':
-    all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                             '2017/1/1', '2017/12/1',
-                                             date_format='%Y/%m/%d',
-                                             product=['date']))
     pycheetah.init_logger()
     ts = time.time()
-    result = pycheetah.start(all_daily_urls, DailyPageManager)
-    items = pycheetah.start(result['urls'], NewsPageManager)
+
+    urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
+                                   '2017/1/1', '2017/12/1',
+                                   date_format='%Y/%m/%d',
+                                   product=['date']))
+    result = pycheetah.start(urls, DailyPage)
+    # result = pycheetah.start(result['urls'], NewsPageManager)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
-          (cost_time, len(items),
-           cost_time / len(items)))
-    print(items[0])
+          (cost_time, len(result),
+           cost_time / len(result)))
