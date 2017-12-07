@@ -1,6 +1,7 @@
-from concurrent import futures
 import logging
+import time
 from abc import ABC, ABCMeta, abstractmethod
+from concurrent import futures
 from queue import PriorityQueue
 
 from .container import Result
@@ -20,10 +21,22 @@ class DefaultTaskManager(ABCTaskManager):
         self.cheetah = cheetah
         self.num_thread = min(len(self.urls), num_thread)
 
+    def __submit(self, executor, iterated_obj):
+        to_do = []
+        count = 0
+        for url in self.urls:
+            if count < 100:
+                to_do.append(executor.submit(self.cheetah('', url)))
+                count += 1
+            else:
+                logging.info('SLEEP...')
+                time.sleep(10)
+                count = 0
+        return to_do
+
     def start(self):
         with futures.ThreadPoolExecutor(self.num_thread) as executor:
-            to_do = [executor.submit(self.cheetah('', url))
-                     for url in self.urls]
+            to_do = self.__submit(executor, self.urls)
             result = [future.result()
                       for future in futures.as_completed(to_do)]
         return Result(result)

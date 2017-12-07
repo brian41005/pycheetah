@@ -61,6 +61,9 @@ class Cheetah:
         elif hasattr(self, 'run'):
             return self.run()
 
+    def retry(self, credit=3):
+        self.start()
+
     def join(self, *args, **kwargs):
         # super(Cheetah, self).join(*args, **kwargs)
         return self.work_result

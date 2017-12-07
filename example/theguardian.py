@@ -6,8 +6,10 @@ import os
 import re
 import sys
 import time
+import logging
 import unicodedata
-
+import random
+import urllib3
 import requests
 from bs4 import BeautifulSoup
 
@@ -59,11 +61,21 @@ class NewsPage(pycheetah.Cheetah):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        soup = BeautifulSoup(requests.get(url,
-                                          timeout=10,
-                                          headers=headers).text,
-                             'lxml')
-        return soup
+        try:
+            soup = BeautifulSoup(requests.get(url,
+                                              timeout=10,
+                                              headers=headers).text,
+                                 'lxml')
+            return soup
+        except requests.exceptions.ReadTimeout:
+            # logging.exception('[TIMEOUT][%s]' % (url))
+            time.sleep(random.random() * 20)
+            self.retry()
+        except urllib3.exceptions.MaxRetryError as msg:
+            time.sleep(random.random() * 20)
+            self.retry()
+        except Exception as msg:
+            logging.critical(msg)
 
     def get_name(self, soup):
         name = soup.find('h1',
