@@ -6,8 +6,10 @@ import os
 import re
 import sys
 import time
+import logging
 import unicodedata
-
+import random
+import urllib3
 import requests
 from bs4 import BeautifulSoup
 
@@ -31,7 +33,7 @@ def process(article):
     return article
 
 
-class DailyPage(pycheetah.Page):
+class DailyPage(pycheetah.Cheetah):
     def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
@@ -54,16 +56,26 @@ class DailyPage(pycheetah.Page):
         return urls
 
 
-class NewsPage(pycheetah.Page):
+class NewsPage(pycheetah.Cheetah):
     def request(self, url):
         headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        soup = BeautifulSoup(requests.get(url,
-                                          timeout=10,
-                                          headers=headers).text,
-                             'lxml')
-        return soup
+        try:
+            soup = BeautifulSoup(requests.get(url,
+                                              timeout=10,
+                                              headers=headers).text,
+                                 'lxml')
+            return soup
+        except requests.exceptions.ReadTimeout:
+            # logging.exception('[TIMEOUT][%s]' % (url))
+            time.sleep(random.random() * 20)
+            self.retry()
+        except requests.exceptions.ConnectionError as msg:
+            time.sleep(random.random() * 20)
+            self.retry()
+        except Exception as msg:
+            logging.critical(msg)
 
     def get_name(self, soup):
         name = soup.find('h1',
@@ -92,34 +104,19 @@ class NewsPage(pycheetah.Page):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 
-class DailyPageManager(pycheetah.DefaultTaskManager):
-    __page_class__ = DailyPage
-
-
-class NewsPageManager(pycheetah.DefaultTaskManager):
-    __page_class__ = NewsPage
-
-
 if __name__ == '__main__':
-    pycheetah.CORE = 1
-    pycheetah.NUM_THREAD = 1
     Classification = ['world', 'politics', 'sport', 'football', 'culture',
                       'business', 'lifeandstyle', 'fashion', 'environment',
                       'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/1/2',
+                                             '2017/12/1',
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
     ts = time.time()
-    result = pycheetah.start(all_daily_urls, DailyPageManager)
-
-    all_news_urls = []
-    for i in result:
-        if i['urls'] is not None:
-            all_news_urls.extend(i['urls'])
-    result = pycheetah.start(all_news_urls, NewsPageManager)
+    result = pycheetah.start(all_daily_urls, DailyPage)
+    result = pycheetah.start(result['urls'], NewsPage)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %

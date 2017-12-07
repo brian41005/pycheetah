@@ -1,45 +1,41 @@
 import logging
+import time
+from abc import ABC, ABCMeta, abstractmethod
+from concurrent import futures
 from queue import PriorityQueue
+
 from .container import Result
 __all__ = ['DefaultTaskManager']
 
 
-class DefaultTaskManager:
-    __page_class__ = None
+class ABCTaskManager(metaclass=ABCMeta):
+    @abstractmethod
+    def start(self):
+        pass
 
-    def __new__(cls, *args, **kwargs):
-        DefaultTaskManager.__page_class__ = cls.__page_class__
-        return super(DefaultTaskManager, cls).__new__(cls)
 
-    def __init__(self, urls, num_thread=1):
-        self.queue = PriorityQueue(maxsize=num_thread)
+class DefaultTaskManager(ABCTaskManager):
+    def __init__(self, urls, cheetah, num_thread=1):
         self.urls = urls
-        self.num_thread = num_thread
+        self.cheetah = cheetah
+        self.num_thread = min(len(self.urls), num_thread)
+
+    def __submit(self, executor, iterated_obj):
+        to_do = []
+        count = 0
+        for url in self.urls:
+            if count < 100:
+                to_do.append(executor.submit(self.cheetah('', url)))
+                count += 1
+            else:
+                logging.info('SLEEP...')
+                time.sleep(10)
+                count = 0
+        return to_do
 
     def start(self):
-        result = []
-        for i, url in enumerate(self.urls):
-            newpage = DefaultTaskManager.__page_class__(str(i), url)
-            newpage.start()
-            self.queue.put(newpage)
-
-            if self.queue.full():
-                while not self.queue.empty():
-                    page = self.queue.get()
-                    need_to_break = page.is_alive()
-                    temp_result = page.join(timeout=0.5)
-                    if temp_result:
-                        result.append(temp_result)
-                        logging.info(page.url)
-                    else:
-                        self.queue.put(page)
-                        logging.info(page.url + ' [TIMEOUT]')
-
-                    if need_to_break:
-                        break
-
-        while not self.queue.empty():
-            page = self.queue.get()
-            result.append(page.join())
-            logging.info(page.url)
+        with futures.ThreadPoolExecutor(self.num_thread) as executor:
+            to_do = self.__submit(executor, self.urls)
+            result = [future.result()
+                      for future in futures.as_completed(to_do)]
         return Result(result)

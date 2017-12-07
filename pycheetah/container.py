@@ -14,6 +14,9 @@ class Result:
         if type(key) is str:
             all_ = []
             for i in self.result:
+                if not i:
+                    continue
+
                 if key in i:
                     if i[key]:
                         all_.extend(i[key])

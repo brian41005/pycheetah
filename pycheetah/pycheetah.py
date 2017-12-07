@@ -6,71 +6,78 @@ import random
 import time
 from multiprocessing import Process, Queue
 
+import concurrent.futures
 from . import utils
 from .container import Result
+from .task import *
 
-__all__ = ['Page', 'start']
-CORE = max(1, os.cpu_count())
-NUM_THREAD = 15
+__all__ = ['Cheetah', 'start']
+NUM_THREAD = 20
 
 
-class Page(threading.Thread):
-    __worker__ = {}
+class Cheetah:
+    __workers__ = {}
     __request__ = None
 
     def __new__(cls, *args, **kwargs):
-        for func_str in (set(dir(cls)) - set(dir(Page))):
+        for func_str in (set(dir(cls)) - set(dir(Cheetah))):
             func = getattr(cls, func_str)
             if func.__name__.startswith('get_') and callable(func):
                 name = func.__name__.replace('get_', '')
-                Page.__worker__[name] = func
+                Cheetah.__workers__[name] = func
             elif func.__name__ == 'request' and callable(func):
-                Page.__request__ = func
+                Cheetah.__request__ = func
 
-        if not Page.__request__ and not callable(Page.__request__):
+        if not Cheetah.__request__ and not callable(Cheetah.__request__):
             raise NotImplementedError('request method not found!')
 
-        return super(Page, cls).__new__(cls)
+        return super(Cheetah, cls).__new__(cls)
 
     def __init__(self, name, url):
-        super(Page, self).__init__(name=name, daemon=True)
+        # super(Cheetah, self).__init__(name=name, daemon=True)
         self.url = url
         self.work_result = {}
-        for func_name, _ in Page.__worker__.items():
+        for func_name, _ in Cheetah.__workers__.items():
             self.work_result[func_name] = None
-        self.started = time.time()
+        self.started_time = time.time()
 
-    def started_time(self):
-        return self.started
-
-    def run(self):
+    def __call__(self):
         # time.sleep(random.random())
-        self.started = time.time()
+        self.started_time = time.time()
         try:
-            response = Page.__request__(self, self.url)
+            response = Cheetah.__request__(self, self.url)
             if response:
-                for worker_name, worker in Page.__worker__.items():
+                for worker_name, worker in Cheetah.__workers__.items():
                     self.work_result[worker_name] = worker(self, response)
+                logging.info('[%s]' % (self.url))
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
 
+        return self.work_result
+
+    def start(self):
+        if hasattr(self, '__call__'):
+            return self.__call__()
+        elif hasattr(self, 'run'):
+            return self.run()
+
+    def retry(self, credit=3):
+        self.start()
+
     def join(self, *args, **kwargs):
-        super(Page, self).join(*args, **kwargs)
+        # super(Cheetah, self).join(*args, **kwargs)
         return self.work_result
 
     def __lt__(self, other):
-        return ((self.started, self.is_alive()) <
-                (other.started_time(), other.is_alive()))
+        return (self.started_time < other.started_time)
 
     def __le__(self, other):
-        return ((self.started, self.is_alive()) <=
-                (other.started_time(), other.is_alive()))
+        return (self.started_time <= other.started_time)
 
 
-def __f(args, *, queue=None):
-    l, taskManager = args[0], args[1]
-
-    manager = taskManager(l, NUM_THREAD)
+def __f(*args, queue=None):
+    chunk, cheetah = args[0]
+    manager = DefaultTaskManager(chunk, cheetah, NUM_THREAD)
     result_obj = manager.start()
     if queue:
         queue.put(result_obj)
@@ -79,21 +86,14 @@ def __f(args, *, queue=None):
 
 
 def _map(f, partition):
-    q = Queue()
+    # q = Queue()
     temp_result = Result()
-    jobs = [Process(target=__f, daemon=True,
-                    args=(p,), kwargs={'queue': q})
-            for p in partition]
-
-    for j in jobs:
-        j.start()
-    for i in range(CORE):
-        temp_result.extend(q.get())
-    for j in jobs:
-        j.join()
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        for res_obj in executor.map(f, partition):
+            temp_result.extend(res_obj)
     return temp_result
 
 
-def start(urls, page_class):
-    _partition = [(i, page_class) for i in utils.partition(urls, CORE)]
+def start(urls, cheetah, cpu=os.cpu_count()):
+    _partition = [(chunk, cheetah) for chunk in utils.partition(urls, cpu)]
     return _map(__f, _partition)
