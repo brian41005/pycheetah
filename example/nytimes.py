@@ -2,11 +2,13 @@
 # this is a example for NYT today's paper
 
 import itertools
+import random
 import os
 import re
 import sys
 import time
 import unicodedata
+import logging
 
 import requests
 from bs4 import BeautifulSoup
@@ -46,13 +48,25 @@ class DailyPage(pycheetah.Cheetah):
 class NewsPage(pycheetah.Cheetah):
 
     def request(self, url):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        soup = BeautifulSoup(requests.get(url,
-                                          headers=headers).text,
-                             'lxml')
-        return soup
+            t0 = time.time()
+            soup = BeautifulSoup(requests.get(
+                url, headers=headers).text, 'lxml')
+            # logging.info('[%.3f]' % (time.time() - t0))
+            return soup
+        except requests.exceptions.ReadTimeout:
+            pass
+            # time.sleep(random.random() * 20)
+            # self.retry()
+        except requests.exceptions.ConnectionError as msg:
+            pass
+            # time.sleep(random.random() * 20)
+            # self.retry()
+        except Exception as msg:
+            logging.critical(msg)
 
     def get_title(self, soup):
         name = soup.find('h6', attrs={'class': 'kicker'})
@@ -89,8 +103,7 @@ if __name__ == '__main__':
                                    date_format='%Y/%m/%d',
                                    product=['date']))
     result = pycheetah.start(urls, DailyPage)
-    result = pycheetah.start(result['urls'], NewsPage)
-
+    #result = pycheetah.start(result['urls'], NewsPage)
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result),

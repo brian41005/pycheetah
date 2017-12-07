@@ -12,7 +12,7 @@ from .container import Result
 from .task import *
 
 __all__ = ['Cheetah', 'start']
-NUM_THREAD = 20
+NUM_THREAD = 100
 
 
 class Cheetah:
@@ -49,7 +49,7 @@ class Cheetah:
             if response:
                 for worker_name, worker in Cheetah.__workers__.items():
                     self.work_result[worker_name] = worker(self, response)
-                logging.info('[%s]' % (self.url))
+
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
 
