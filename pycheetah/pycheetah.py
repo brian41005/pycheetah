@@ -12,7 +12,7 @@ from .container import Result
 from .task import *
 
 __all__ = ['Cheetah', 'start']
-NUM_THREAD = 10
+NUM_THREAD = 20
 
 
 class Cheetah:
@@ -50,9 +50,10 @@ class Cheetah:
                 for worker_name, worker in Cheetah.__workers__.items():
                     self.work_result[worker_name] = worker(self, response)
                 logging.info('[%s]' % (self.url))
-                return self.work_result
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
+
+        return self.work_result
 
     def start(self):
         if hasattr(self, '__call__'):
@@ -73,7 +74,7 @@ class Cheetah:
 
 def __f(*args, queue=None):
     chunk, cheetah = args[0]
-    manager = OldTaskManager(chunk, cheetah, NUM_THREAD)
+    manager = DefaultTaskManager(chunk, cheetah, NUM_THREAD)
     result_obj = manager.start()
     if queue:
         queue.put(result_obj)

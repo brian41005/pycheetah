@@ -80,14 +80,6 @@ class NewsPage(pycheetah.Cheetah):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
-# class DailyPageManager(pycheetah.DefaultTaskManager):
-#     __page_class__ = DailyPage
-
-
-# class NewsPageManager(pycheetah.DefaultTaskManager):
-#     __page_class__ = NewsPage
-
-
 if __name__ == '__main__':
     pycheetah.init_logger()
     ts = time.time()
@@ -97,9 +89,10 @@ if __name__ == '__main__':
                                    date_format='%Y/%m/%d',
                                    product=['date']))
     result = pycheetah.start(urls, DailyPage)
-    # result = pycheetah.start(result['urls'], NewsPageManager)
+    result = pycheetah.start(result['urls'], NewsPage)
 
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result),
            cost_time / len(result)))
+    print(result[0])
