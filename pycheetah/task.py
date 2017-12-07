@@ -4,7 +4,7 @@ from .container import Result
 __all__ = ['TaskManager']
 
 
-class TaskManager:
+class DefaultTaskManager:
     __page_class__ = None
 
     def __new__(cls, *args, **kwargs):
@@ -30,7 +30,7 @@ class TaskManager:
                     temp_result = page.join(timeout=0.5)
                     if temp_result:
                         result.append(temp_result)
-                        logging.info(page.url)
+                        # logging.info(page.url)
                     else:
                         self.queue.put(page)
                         logging.info(page.url + ' [TIMEOUT]')
@@ -41,5 +41,5 @@ class TaskManager:
         while not self.queue.empty():
             page = self.queue.get()
             result.append(page.join())
-            logging.info(page.url)
+            # logging.info(page.url)
         return Result(result)

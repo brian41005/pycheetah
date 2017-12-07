@@ -79,11 +79,11 @@ class NewsPage(pycheetah.Page):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
-class DailyPageManager(pycheetah.TaskManager):
+class DailyPageManager(pycheetah.DefaultTaskManager):
     __page_class__ = DailyPage
 
 
-class NewsPageManager(pycheetah.TaskManager):
+class NewsPageManager(pycheetah.DefaultTaskManager):
     __page_class__ = NewsPage
 
 

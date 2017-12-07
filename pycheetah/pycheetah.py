@@ -18,10 +18,6 @@ class Page(threading.Thread):
     __worker__ = {}
     __request__ = None
 
-    @classmethod
-    def __get_subclass_method(cls):
-        pass
-
     def __new__(cls, *args, **kwargs):
         for func_str in (set(dir(cls)) - set(dir(Page))):
             func = getattr(cls, func_str)
