@@ -6,6 +6,7 @@ import random
 import threading
 import time
 from multiprocessing import Process, Queue
+from collections import defaultdict
 
 from . import utils
 from .container import Result
@@ -36,23 +37,27 @@ class Cheetah:
 
     def __init__(self, name, url):
         self.url = url
-        self.work_result = {}
-        # for func_name, _ in Cheetah.__workers__.items():
-        #     self.work_result[func_name] = None
+        self.work_result = {item_name: None for item_name,
+                            _ in Cheetah.__workers__.items()}
         self.started_time = time.time()
 
     def run(self):
         self.started_time = time.time()
         try:
             response = Cheetah.__request__(self, self.url)
-            if response:
+            if response is self:
+                '''
+                retry
+                '''
+                return self
+
+            elif response:
                 for worker_name, worker in Cheetah.__workers__.items():
                     self.work_result[worker_name] = worker(self, response)
                 return self.work_result
 
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
-        return self
 
     def __call__(self):
         return self.run()
@@ -60,8 +65,8 @@ class Cheetah:
     def start(self):
         return self.run()
 
-    def retry(self, credit=3):
-        self.start()
+    def retry(self):
+        return self
 
     def join(self, *args, **kwargs):
         return self.work_result

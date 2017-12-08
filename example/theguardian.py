@@ -68,12 +68,9 @@ class NewsPage(pycheetah.Cheetah):
                                  'lxml')
             return soup
         except requests.exceptions.ReadTimeout:
-            # logging.exception('[TIMEOUT][%s]' % (url))
-            time.sleep(random.random() * 20)
-            self.retry()
+            return self.retry()
         except requests.exceptions.ConnectionError as msg:
-            time.sleep(random.random() * 20)
-            self.retry()
+            return self.retry()
         except Exception as msg:
             logging.critical(msg)
 

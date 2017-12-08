@@ -25,13 +25,14 @@ class DailyPage(pycheetah.Cheetah):
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
                 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-            return BeautifulSoup(requests.get(url, timeout=5,
+            return BeautifulSoup(requests.get(url, timeout=3,
                                               headers=headers).text,
                                  'lxml')
-        except requests.exceptions.ReadTimeout:
-            logging.info('[ReadTimeout][%s]' % (url[:35]))
-        except requests.exceptions.ConnectionError as msg:
-            logging.info('[Max retrieve][%s]' % (url[:35]))
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError) as msg:
+            return self.retry()
+        except Exception:
+            logging.critical(msg)
 
     def get_urls(self, soup):
         urls = []
@@ -59,16 +60,15 @@ class NewsPage(pycheetah.Cheetah):
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
             t0 = time.time()
-            soup = BeautifulSoup(requests.get(
-                url, headers=headers).text, 'lxml')
-            return soup
+            res = requests.get(url, timeout=3, headers=headers)
+            if res:
+                soup = BeautifulSoup(res.text, 'lxml')
+                logging.info('[%s]' % (url))
+                return soup
 
-        except requests.exceptions.ReadTimeout:
-            logging.info('[ReadTimeout][%s]' % (url[:34]))
-            pass
-        except requests.exceptions.ConnectionError as msg:
-            logging.info('[Max retrieve][%s]' % (url[:34]))
-            pass
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError) as msg:
+            return self.retry()
         except Exception as msg:
             logging.critical(msg)
 
@@ -110,8 +110,8 @@ if __name__ == '__main__':
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    # t0 = time.time()
-    # result = pycheetah.start(result['urls'], NewsPage)
+    t0 = time.time()
+    result = pycheetah.start(result['urls'], NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))

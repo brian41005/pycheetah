@@ -28,7 +28,7 @@ class Result:
         return len(self.result)
 
     def extend(self, other):
-        if type(other) is Result:
+        if type(other) is self.__class__:
             self.result.extend(other.result)
         else:
             raise TypeError('need  Result')
