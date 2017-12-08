@@ -9,6 +9,7 @@ __all__ = ['DefaultTaskManager']
 
 
 class ABCTaskManager(metaclass=ABCMeta):
+
     @abstractmethod
     def start(self):
         pass
@@ -17,14 +18,14 @@ class ABCTaskManager(metaclass=ABCMeta):
 class DefaultTaskManager(ABCTaskManager):
     def __init__(self, urls, cheetah, num_thread=1):
         self.urls = urls
-        self.cheetah = cheetah
+        self.cheetah_class = cheetah
         self.num_thread = min(len(self.urls), num_thread)
 
     def __submit(self, executor, iterated_obj):
         to_do = []
 
         for url in self.urls:
-            to_do.append(executor.submit(self.cheetah('', url)))
+            to_do.append(executor.submit(self.cheetah_class('', url)))
         return to_do
 
     def start(self):
