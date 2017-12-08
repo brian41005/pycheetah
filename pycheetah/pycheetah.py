@@ -1,18 +1,18 @@
 # coding: utf-8
+import concurrent.futures
 import logging
 import os
-import threading
 import random
+import threading
 import time
 from multiprocessing import Process, Queue
 
-import concurrent.futures
 from . import utils
 from .container import Result
 from .task import *
-
+from .map import StrategyMap
 __all__ = ['Cheetah', 'start']
-NUM_THREAD = 100
+NUM_THREAD = 1
 
 
 class Cheetah:
@@ -34,7 +34,6 @@ class Cheetah:
         return super(Cheetah, cls).__new__(cls)
 
     def __init__(self, name, url):
-        # super(Cheetah, self).__init__(name=name, daemon=True)
         self.url = url
         self.work_result = {}
         for func_name, _ in Cheetah.__workers__.items():
@@ -42,7 +41,6 @@ class Cheetah:
         self.started_time = time.time()
 
     def __call__(self):
-        # time.sleep(random.random())
         self.started_time = time.time()
         try:
             response = Cheetah.__request__(self, self.url)
@@ -85,15 +83,8 @@ def __f(*args, queue=None):
         return result_obj
 
 
-def _map(f, partition):
-    # q = Queue()
-    temp_result = Result()
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        for res_obj in executor.map(f, partition):
-            temp_result.extend(res_obj)
-    return temp_result
-
-
 def start(urls, cheetah, cpu=os.cpu_count()):
+    cpu = min(len(urls), cpu)
     _partition = [(chunk, cheetah) for chunk in utils.partition(urls, cpu)]
-    return _map(__f, _partition)
+    map_obj = StrategyMap()
+    return map_obj.map(__f, _partition)

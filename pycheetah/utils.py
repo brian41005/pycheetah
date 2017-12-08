@@ -14,9 +14,13 @@ def partition(container, n):
     n: int, greater than 0 
 
     '''
+    if n < 1:
+        raise ValueError('n must greater than 0')
+
     len_ = len(container)
     chunk_size = int(len_ / n)
-    for i in range(n - 1):
+    n -= 1
+    for i in range(n):
         start = chunk_size * i
         yield container[start:start + chunk_size]
 

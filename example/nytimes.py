@@ -55,13 +55,14 @@ class NewsPage(pycheetah.Cheetah):
             t0 = time.time()
             soup = BeautifulSoup(requests.get(
                 url, headers=headers).text, 'lxml')
-            # logging.info('[%.3f]' % (time.time() - t0))
             return soup
         except requests.exceptions.ReadTimeout:
+            logging.info('[%s]' % (url))
             pass
             # time.sleep(random.random() * 20)
             # self.retry()
         except requests.exceptions.ConnectionError as msg:
+            logging.info('[%s]' % (url))
             pass
             # time.sleep(random.random() * 20)
             # self.retry()
@@ -96,16 +97,17 @@ class NewsPage(pycheetah.Cheetah):
 
 if __name__ == '__main__':
     pycheetah.init_logger()
-    ts = time.time()
+    t0 = time.time()
 
     urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                   '2017/1/1', '2017/12/1',
+                                   '2017/1/1', '2017/2/1',
                                    date_format='%Y/%m/%d',
                                    product=['date']))
+
     result = pycheetah.start(urls, DailyPage)
+    t0 = time.time()
     #result = pycheetah.start(result['urls'], NewsPage)
-    cost_time = time.time() - ts
-    print('time:%.6f, %d data, avg:%.6f' %
-          (cost_time, len(result),
-           cost_time / len(result)))
-    print(result[0])
+    t1 = time.time() - t0
+    print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
+                                            t1 / len(result)))
+    # print(result[0])
