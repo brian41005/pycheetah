@@ -42,6 +42,7 @@ class DailyPage(pycheetah.Cheetah):
                 for i in each_ul.find_all('a'):
                     urls.append(i['href'])
 
+        # logging.info('[%s]' % (len(urls)))
         return urls
 
 
@@ -57,12 +58,12 @@ class NewsPage(pycheetah.Cheetah):
                 url, headers=headers).text, 'lxml')
             return soup
         except requests.exceptions.ReadTimeout:
-            logging.info('[%s]' % (url))
+            logging.info('[ReadTimeout][%s]' % (url[:34]))
             pass
             # time.sleep(random.random() * 20)
             # self.retry()
         except requests.exceptions.ConnectionError as msg:
-            logging.info('[%s]' % (url))
+            logging.info('[Max retrieve][%s]' % (url[:34]))
             pass
             # time.sleep(random.random() * 20)
             # self.retry()
@@ -75,7 +76,9 @@ class NewsPage(pycheetah.Cheetah):
             name = name.text
         else:
             name = soup.find(
-                'span', attrs={'class': 'Heading1-headline--8Qzcc balance-text'}).text
+                'span', attrs={'class': 'Heading1-headline--8Qzcc balance-text'})
+            if name:
+                name = name.text
 
         return name
 
@@ -100,13 +103,13 @@ if __name__ == '__main__':
     t0 = time.time()
 
     urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                   '2017/1/1', '2017/2/1',
+                                   '2017/1/1', '2017/12/1',
                                    date_format='%Y/%m/%d',
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    #t0 = time.time()
-    # result = pycheetah.start(result['urls'], NewsPage)
+    t0 = time.time()
+    result = pycheetah.start(result['urls'], NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))

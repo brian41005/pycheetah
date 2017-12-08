@@ -9,10 +9,11 @@ from multiprocessing import Process, Queue
 
 from . import utils
 from .container import Result
-from .task import *
 from .map import StrategyMap
+from .task import *
+
 __all__ = ['Cheetah', 'start']
-NUM_THREAD = 1
+NUM_THREAD = 5
 
 
 class Cheetah:
@@ -63,7 +64,6 @@ class Cheetah:
         self.start()
 
     def join(self, *args, **kwargs):
-        # super(Cheetah, self).join(*args, **kwargs)
         return self.work_result
 
     def __lt__(self, other):
