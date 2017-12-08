@@ -37,28 +37,28 @@ class Cheetah:
     def __init__(self, name, url):
         self.url = url
         self.work_result = {}
-        for func_name, _ in Cheetah.__workers__.items():
-            self.work_result[func_name] = None
+        # for func_name, _ in Cheetah.__workers__.items():
+        #     self.work_result[func_name] = None
         self.started_time = time.time()
 
-    def __call__(self):
+    def run(self):
         self.started_time = time.time()
         try:
             response = Cheetah.__request__(self, self.url)
             if response:
                 for worker_name, worker in Cheetah.__workers__.items():
                     self.work_result[worker_name] = worker(self, response)
+                return self.work_result
 
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
+        return self
 
-        return self.work_result
+    def __call__(self):
+        return self.run()
 
     def start(self):
-        if hasattr(self, '__call__'):
-            return self.__call__()
-        elif hasattr(self, 'run'):
-            return self.run()
+        return self.run()
 
     def retry(self, credit=3):
         self.start()

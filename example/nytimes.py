@@ -21,12 +21,17 @@ import pycheetah
 
 class DailyPage(pycheetah.Cheetah):
     def request(self, url):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-        return BeautifulSoup(requests.get(url, timeout=5,
-                                          headers=headers).text,
-                             'lxml')
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
+                AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+            return BeautifulSoup(requests.get(url, timeout=5,
+                                              headers=headers).text,
+                                 'lxml')
+        except requests.exceptions.ReadTimeout:
+            logging.info('[ReadTimeout][%s]' % (url[:35]))
+        except requests.exceptions.ConnectionError as msg:
+            logging.info('[Max retrieve][%s]' % (url[:35]))
 
     def get_urls(self, soup):
         urls = []
@@ -57,16 +62,13 @@ class NewsPage(pycheetah.Cheetah):
             soup = BeautifulSoup(requests.get(
                 url, headers=headers).text, 'lxml')
             return soup
+
         except requests.exceptions.ReadTimeout:
             logging.info('[ReadTimeout][%s]' % (url[:34]))
             pass
-            # time.sleep(random.random() * 20)
-            # self.retry()
         except requests.exceptions.ConnectionError as msg:
             logging.info('[Max retrieve][%s]' % (url[:34]))
             pass
-            # time.sleep(random.random() * 20)
-            # self.retry()
         except Exception as msg:
             logging.critical(msg)
 
@@ -108,8 +110,8 @@ if __name__ == '__main__':
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    t0 = time.time()
-    result = pycheetah.start(result['urls'], NewsPage)
+    # t0 = time.time()
+    # result = pycheetah.start(result['urls'], NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))
