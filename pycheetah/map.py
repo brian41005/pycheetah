@@ -7,7 +7,6 @@ __all__ = ['_map', '_map_macos', 'StrategyMap']
 
 
 def _map(fn, partition):
-    # q = Queue()
     temp_result = Result()
     with concurrent.futures.ProcessPoolExecutor() as executor:
         for res_obj in executor.map(fn, partition):

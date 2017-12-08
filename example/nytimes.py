@@ -105,8 +105,8 @@ if __name__ == '__main__':
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    t0 = time.time()
-    #result = pycheetah.start(result['urls'], NewsPage)
+    #t0 = time.time()
+    # result = pycheetah.start(result['urls'], NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))

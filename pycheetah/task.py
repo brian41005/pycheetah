@@ -30,7 +30,6 @@ class DefaultTaskManager(ABCTaskManager):
     def start(self):
         with futures.ThreadPoolExecutor(self.num_thread) as executor:
             to_do = self.__submit(executor, self.urls)
-            logging.info('submit completed')
             result = [future.result()
                       for future in futures.as_completed(to_do)]
         return Result(result)
