@@ -37,6 +37,7 @@ class Cheetah:
 
     def __init__(self, name, url):
         self.url = url
+        self.name = name
         self.work_result = {item_name: None for item_name,
                             _ in Cheetah.__workers__.items()}
         self.started_time = time.time()

@@ -63,14 +63,13 @@ class NewsPage(pycheetah.Cheetah):
             res = requests.get(url, timeout=3, headers=headers)
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
-                logging.info('[%s]' % (url))
+                logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
                 return soup
 
         except (requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError) as msg:
+                requests.exceptions.ConnectionError):
+            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
             return self.retry()
-        except Exception as msg:
-            logging.critical(msg)
 
     def get_title(self, soup):
         name = soup.find('h6', attrs={'class': 'kicker'})
@@ -105,14 +104,15 @@ if __name__ == '__main__':
     t0 = time.time()
 
     urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
-                                   '2017/1/1', '2017/12/1',
+                                   '2017/1/1', '2017/1/20',
                                    date_format='%Y/%m/%d',
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
     t0 = time.time()
+    print(len(result['urls']))
     result = pycheetah.start(result['urls'], NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))
-    # print(result[0])
+    print(result[-1])

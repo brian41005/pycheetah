@@ -22,8 +22,9 @@ class DefaultTaskManager(ABCTaskManager):
         self.num_thread = min(len(self.urls), num_thread)
 
     def __submit(self, executor, iterated_obj):
-        to_do = [executor.submit(self.cheetah_class('', url))
-                 for url in self.urls]
+        logging.info('start submit %d urls' % (len(self.urls)))
+        to_do = [executor.submit(self.cheetah_class(str(i), url))
+                 for i, url in enumerate(self.urls)]
         results = [future.result() for future in futures.as_completed(to_do)]
 
         retry = list(filter(lambda result: isinstance(

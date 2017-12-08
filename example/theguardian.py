@@ -62,17 +62,19 @@ class NewsPage(pycheetah.Cheetah):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
             AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         try:
-            soup = BeautifulSoup(requests.get(url,
-                                              timeout=10,
-                                              headers=headers).text,
-                                 'lxml')
-            return soup
-        except requests.exceptions.ReadTimeout:
+            res = requests.get(url,
+                               timeout=10,
+                               headers=headers)
+            if res:
+                soup = BeautifulSoup(res.text,
+                                     'lxml')
+                logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
+                return soup
+
+        except (requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
             return self.retry()
-        except requests.exceptions.ConnectionError as msg:
-            return self.retry()
-        except Exception as msg:
-            logging.critical(msg)
 
     def get_name(self, soup):
         name = soup.find('h1',
@@ -80,9 +82,6 @@ class NewsPage(pycheetah.Cheetah):
                                 'itemprop': 'headline'})
         if name:
             return rm_url_tag(str(name)).strip()
-        # except (IndexError, AttributeError, UnicodeEncodeError) as errmsg:
-        # logging.exception(errmsg, soup.find(
-        # 'link', attrs={'rel': 'canonical'})['href'])
 
     def get_article(self, soup):
         article = ''
