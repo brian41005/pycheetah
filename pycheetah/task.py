@@ -42,5 +42,5 @@ class DefaultTaskManager(ABCTaskManager):
                 logging.info('retry %d cheetah' % (len(retry_to_do)))
                 retry_to_do, done = self.__submit(executor, retry_to_do)
                 results.extend(done)
-
+        logging.info(len(results))
         return Result(results)
