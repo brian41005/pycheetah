@@ -22,15 +22,20 @@ class DefaultTaskManager(ABCTaskManager):
         self.num_thread = min(len(self.urls), num_thread)
 
     def __submit(self, executor, iterated_obj):
-        logging.info('start submit %d urls' % (len(self.urls)))
-        to_do = [executor.submit(self.cheetah_class(str(i), url))
-                 for i, url in enumerate(self.urls)]
+        logging.info('start submit %d urls' % (len(iterated_obj)))
+        to_do = []
+        for i, each in enumerate(iterated_obj):
+            if type(each) is str:
+                to_do.append(executor.submit(self.cheetah_class(str(i), each)))
+            elif type(each) is self.cheetah_class:
+                to_do.append(executor.submit(each))
+
         results = [future.result() for future in futures.as_completed(to_do)]
 
         retry = list(filter(lambda result: isinstance(
             result, self.cheetah_class), results))
         done = list(filter(lambda result: type(result) is dict, results))
-        # logging.info(retry)
+
         return retry, done
 
     def start(self):
@@ -43,5 +48,5 @@ class DefaultTaskManager(ABCTaskManager):
                 logging.info('retry %d url' % (len(retry_to_do)))
                 retry_to_do, done = self.__submit(executor, retry_to_do)
                 results.extend(done)
-        logging.info(len(results))
+        logging.info('end %d urls' % len(results))
         return Result(results)
