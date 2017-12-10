@@ -119,4 +119,3 @@ if __name__ == '__main__':
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result), cost_time / len(result)))
     print(len(urls))
-# time:8918.327236, 384503 data, avg:0.023194
