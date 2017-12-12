@@ -1,7 +1,7 @@
 import concurrent.futures
 from multiprocessing import Process, Queue
 from sys import platform
-from .container import Result
+from .datamodel import Result
 
 __all__ = ['_map', '_map_macos', 'StrategyMap']
 

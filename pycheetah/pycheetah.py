@@ -9,7 +9,6 @@ from multiprocessing import Process, Queue
 from collections import defaultdict
 
 from . import utils
-from .container import Result
 from .map import StrategyMap
 from .task import *
 

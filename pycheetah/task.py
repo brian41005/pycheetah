@@ -4,7 +4,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from concurrent import futures
 from queue import PriorityQueue
 
-from .container import Result
+from .datamodel import Result
 __all__ = ['DefaultTaskManager']
 
 
