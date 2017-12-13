@@ -2,15 +2,12 @@
 import concurrent.futures
 import logging
 import os
-import random
-import threading
 import time
-from multiprocessing import Process, Queue
 from collections import defaultdict
 
 from . import utils
 from .map import StrategyMap
-from .task import *
+from .task import DefaultTaskManager
 
 __all__ = ['Cheetah', 'start']
 NUM_THREAD = 5

@@ -14,15 +14,6 @@ def _map(fn, partition):
             temp_result.extend(res_obj)
     return temp_result
 
-# def __f(*args, queue=None):
-#     chunk, cheetah = args[0]
-#     manager =
-#     result_obj = manager.start()
-#     if queue:
-#         queue.put(result_obj)
-#     else:
-#         return result_obj
-
 
 def return2queue(fn):
     @wraps(fn)
