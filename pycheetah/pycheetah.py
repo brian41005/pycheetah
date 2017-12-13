@@ -41,7 +41,7 @@ class Cheetah:
                             _ in Cheetah.__workers__.items()}
         self.started_time = time.time()
 
-    def run(self):
+    def __run(self):
         self.started_time = time.time()
         try:
             response = Cheetah.__request__(self, self.url)
@@ -60,10 +60,10 @@ class Cheetah:
             logging.error('%s [%s]' % (msg, self.url))
 
     def __call__(self):
-        return self.run()
+        return self.__run()
 
     def start(self):
-        return self.run()
+        return self.__run()
 
     def retry(self):
         return self
@@ -78,18 +78,10 @@ class Cheetah:
         return (self.started_time <= other.started_time)
 
 
-def __f(*args, queue=None):
-    chunk, cheetah = args[0]
-    manager = DefaultTaskManager(chunk, cheetah, NUM_THREAD)
-    result_obj = manager.start()
-    if queue:
-        queue.put(result_obj)
-    else:
-        return result_obj
-
-
-def start(urls, cheetah, cpu=os.cpu_count()):
+def start(urls, cheetah, cpu=None):
+    cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
-    _partition = [(chunk, cheetah) for chunk in utils.partition(urls, cpu)]
+    partition = [DefaultTaskManager(chunk, cheetah, NUM_THREAD)
+                 for chunk in utils.partition(urls, cpu)]
     map_obj = StrategyMap()
-    return map_obj.map(__f, _partition)
+    return map_obj.map(lambda obj: obj.start(), partition)

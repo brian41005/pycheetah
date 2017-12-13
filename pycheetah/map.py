@@ -1,5 +1,6 @@
 import concurrent.futures
 from multiprocessing import Process, Queue
+from functools import wraps
 from sys import platform
 from .datamodel import Result
 
@@ -13,12 +14,33 @@ def _map(fn, partition):
             temp_result.extend(res_obj)
     return temp_result
 
+# def __f(*args, queue=None):
+#     chunk, cheetah = args[0]
+#     manager =
+#     result_obj = manager.start()
+#     if queue:
+#         queue.put(result_obj)
+#     else:
+#         return result_obj
+
+
+def return2queue(fn):
+    @wraps(fn)
+    def func_wrapper(*args, queue):
+        result_obj = fn(*args)
+        queue.put(result_obj)
+    return func_wrapper
+
 
 def _map_macos(fn, partition):
     q = Queue()
     temp_result = Result()
-    jobs = [Process(target=fn, daemon=True,
-                    args=(p,), kwargs={'queue': q})
+    fn = return2queue(fn)
+    jobs = [Process(target=fn,
+                    daemon=True,
+                    args=(p,),
+                    kwargs={'queue': q})
+
             for p in partition]
 
     for j in jobs:
