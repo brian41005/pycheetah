@@ -118,3 +118,4 @@ if __name__ == '__main__':
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result), cost_time / len(result)))
     print(len(urls))
+    result.save('test.csv')

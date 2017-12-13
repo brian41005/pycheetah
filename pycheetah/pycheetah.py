@@ -37,8 +37,9 @@ class Cheetah:
     def __init__(self, name, url):
         self.url = url
         self.name = name
-        self.work_result = {item_name: None for item_name,
-                            _ in Cheetah.__workers__.items()}
+        self.item = {item_name: None for item_name,
+                     _ in Cheetah.__workers__.items()}
+        self.item['url'] = self.url
         self.started_time = time.time()
 
     def __run(self):
@@ -53,8 +54,8 @@ class Cheetah:
 
             elif response:
                 for worker_name, worker in Cheetah.__workers__.items():
-                    self.work_result[worker_name] = worker(self, response)
-                return self.work_result
+                    self.item[worker_name] = worker(self, response)
+                return self.item
 
         except Exception as msg:
             logging.error('%s [%s]' % (msg, self.url))
@@ -69,7 +70,7 @@ class Cheetah:
         return self
 
     def join(self, *args, **kwargs):
-        return self.work_result
+        return self.item
 
     def __lt__(self, other):
         return (self.started_time < other.started_time)
