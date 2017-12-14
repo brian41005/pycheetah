@@ -1,14 +1,10 @@
 # coding: utf-8
 # this is a example for NYT today's paper
 
-import itertools
-import random
+import logging
 import os
-import re
 import sys
 import time
-import unicodedata
-import logging
 
 import requests
 from bs4 import BeautifulSoup

@@ -1,9 +1,7 @@
 # coding: utf-8
-import concurrent.futures
 import logging
 import os
 import time
-from collections import defaultdict
 
 from . import utils
 from .map import StrategyMap
@@ -76,10 +74,15 @@ class Cheetah:
         return (self.started_time <= other.started_time)
 
 
+def _fn(task_manager):
+    return task_manager.start()
+
+
 def start(urls, cheetah, cpu=None):
     cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
     partition = [DefaultTaskManager(chunk, cheetah, NUM_THREAD)
                  for chunk in utils.partition(urls, cpu)]
     map_obj = StrategyMap()
-    return map_obj.map(lambda obj: obj.start(), partition)
+
+    return map_obj.map(_fn, partition)

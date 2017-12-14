@@ -1,15 +1,13 @@
 # coding: utf-8
 # this is a example for The Guardian web
 
-import itertools
+
 import os
 import re
 import sys
 import time
 import logging
 import unicodedata
-import random
-import urllib3
 import requests
 from bs4 import BeautifulSoup
 
@@ -106,7 +104,7 @@ if __name__ == '__main__':
                       'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/1/1',
+                                             '2017/12/1',
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
