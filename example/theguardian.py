@@ -16,6 +16,21 @@ pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
 
+headers = {
+    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/\
+    webp,image/apng,*/*;q=0.8',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ms;q=0.6,zh-CN;q\
+    =0.5,ja;q=0.4',
+    'cache-control': 'no-cache',
+    'cookie': 'sbi_debug=false; GU_mvt_id=435928; GU_geo_continent=AS;\
+     sbi_debug=false',
+    'pragma': 'no-cache',
+    'referer': 'https://www.theguardian.com/international',
+    'upgrade-insecure-requests': '1',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/\
+    537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'}
+
 
 def rm_url_tag(seq, pattern='<.*?>'):
     return re.sub(re.compile(pattern), '', seq)
@@ -33,9 +48,6 @@ def process(article):
 
 class DailyPage(pycheetah.Cheetah):
     def request(self, url):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         soup = BeautifulSoup(requests.get(url,
                                           timeout=10,
                                           headers=headers).text,
@@ -56,17 +68,13 @@ class DailyPage(pycheetah.Cheetah):
 
 class NewsPage(pycheetah.Cheetah):
     def request(self, url):
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) \
-            AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
         try:
             res = requests.get(url,
                                timeout=10,
                                headers=headers)
             if res:
-                soup = BeautifulSoup(res.text,
-                                     'lxml')
-                logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
+                soup = BeautifulSoup(res.text, 'lxml')
+                # logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
                 return soup
 
         except (requests.exceptions.ReadTimeout,
@@ -83,11 +91,12 @@ class NewsPage(pycheetah.Cheetah):
 
     def get_article(self, soup):
         article = ''
-        for articleBody in soup.find_all('div',
-                                         attrs={'class': 'content__article-body from-content-api js-article__body',
-                                                'itemprop': 'articleBody',
-                                                'data-test-id': 'article-review-body'
-                                                }):
+        attrs = {'class': 'content__article-body from-content-api \
+        js-article__body',
+                 'itemprop': 'articleBody',
+                 'data-test-id': 'article-review-body'
+                 }
+        for articleBody in soup.find_all('div', attrs=attrs):
 
             for each_p in articleBody.find_all('p'):
                 article += process(rm_url_tag(each_p.text))
