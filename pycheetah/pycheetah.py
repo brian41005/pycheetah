@@ -20,9 +20,9 @@ class Cheetah:
             func = getattr(cls, func_str)
             if func.__name__.startswith('get_') and callable(func):
                 name = func.__name__.replace('get_', '')
-                Cheetah.__workers__[name] = func
+                Cheetah.__workers__[name] = utils.addLogger(func)
             elif func.__name__ == 'request' and callable(func):
-                Cheetah.__request__ = func
+                Cheetah.__request__ = utils.addLogger(func)
 
         if not Cheetah.__request__ and not callable(Cheetah.__request__):
             raise NotImplementedError('request method not found!')
@@ -39,17 +39,13 @@ class Cheetah:
 
     def __run(self):
         self.started_time = time.time()
-        try:
-            response = Cheetah.__request__(self, self.url)
-            if response == self.url:
-                return response
-            else:
-                for worker_name, worker in Cheetah.__workers__.items():
-                    self.item[worker_name] = worker(self, response)
-                return self.item
-
-        except Exception as msg:
-            logging.error('%s [%s]' % (msg, self.url))
+        response = Cheetah.__request__(self, self.url)
+        if response == self.url:
+            return response
+        elif response:
+            for item_name, worker in Cheetah.__workers__.items():
+                self.item[item_name] = worker(self, response)
+            return self.item
 
     def __call__(self):
         return self.__run()

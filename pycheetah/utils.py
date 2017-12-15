@@ -1,10 +1,12 @@
 # coding: utf-8
+import functools
+import itertools
 import logging
 import os
 import sys
 from datetime import datetime, timedelta
-import itertools
-__all__ = ['gen_urls', 'partition', 'init_logger']
+
+__all__ = ['gen_urls', 'partition', 'init_logger', 'addLogger']
 
 
 def partition(container, n):
@@ -52,6 +54,17 @@ def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date'
     product = list(itertools.product(*product))
     for each_prod in product:
         yield url % each_prod
+
+
+def addLogger(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as msg:
+            logging.exception(
+                'there was an exception in {:s}'.format(func.__name__))
+    return wrapper
 
 
 def init_logger(logdir=None, console=True):

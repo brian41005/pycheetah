@@ -22,18 +22,18 @@ import pycheetah
 
 headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/\
-    webp,image/apng,*/*;q=0.8',
+webp,image/apng,*/*;q=0.8',
     'accept-encoding': 'gzip, deflate, br',
     'accept-language': 'en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7,ms;q=0.6,zh-CN;q\
-    =0.5,ja;q=0.4',
+=0.5,ja;q=0.4',
     'cache-control': 'no-cache',
     'cookie': 'sbi_debug=false; GU_mvt_id=435928; GU_geo_continent=AS;\
-     sbi_debug=false',
+sbi_debug=false',
     'pragma': 'no-cache',
     'referer': 'https://www.theguardian.com/international',
     'upgrade-insecure-requests': '1',
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/\
-    537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'}
+537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'}
 
 
 def rm_url_tag(seq, pattern='<.*?>'):
