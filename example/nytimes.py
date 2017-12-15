@@ -105,7 +105,4 @@ if __name__ == '__main__':
     result = pycheetah.start(urls, DailyPage)
     urls = result.reduce_key('urls')
     result = pycheetah.start(urls, NewsPage)
-    t1 = time.time() - t0
-    print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
-                                            t1 / len(result)))
-    print(len(urls))
+    result.save('nytimes.csv')

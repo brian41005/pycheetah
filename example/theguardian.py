@@ -12,6 +12,7 @@ import unicodedata
 import random
 
 import requests
+from requests.exceptions import ReadTimeout, ConnectionError
 from bs4 import BeautifulSoup
 
 
@@ -51,11 +52,15 @@ def process(article):
 
 class DailyPage(pycheetah.Cheetah):
     def request(self, url):
-        soup = BeautifulSoup(requests.get(url,
-                                          timeout=10,
-                                          headers=headers).text,
-                             'lxml')
-        return soup
+        try:
+            soup = BeautifulSoup(requests.get(url,
+                                              timeout=10,
+                                              headers=headers).text,
+                                 'lxml')
+            return soup
+        except (ReadTimeout, ConnectionError):
+            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
+            return self.retry()
 
     def get_urls(self, soup):
         urls = []
@@ -72,25 +77,18 @@ class DailyPage(pycheetah.Cheetah):
 class NewsPage(pycheetah.Cheetah):
     def request(self, url):
         try:
-            res = requests.get(url,
-                               timeout=10,
-                               headers=headers)
-            if random.randint(0, 9) in (0, 1, 2):
-                return self.retry()
+            res = requests.get(url, timeout=3, headers=headers)
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
-                # logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
                 return soup
-
-        except (requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectionError):
-            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
+        except (ReadTimeout, ConnectionError):
+            logging.info('RETRY [{:s}][{:s}]'.format(
+                self.name, url.split('/')[-1]))
             return self.retry()
 
     def get_name(self, soup):
-        name = soup.find('h1',
-                         attrs={'class': 'content__headline',
-                                'itemprop': 'headline'})
+        name = soup.find('h1', attrs={'class': 'content__headline',
+                                      'itemprop': 'headline'})
         if name:
             return rm_url_tag(str(name)).strip()
 
@@ -116,7 +114,7 @@ if __name__ == '__main__':
                       'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/1/2',
+                                             '2017/1/1',
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
@@ -125,8 +123,4 @@ if __name__ == '__main__':
     result = pycheetah.start(all_daily_urls, DailyPage)
     urls = result.reduce_key('urls')
     result = pycheetah.start(urls, NewsPage)
-
-    cost_time = time.time() - ts
-    print('time:%.6f, %d data, avg:%.6f' %
-          (cost_time, len(result), cost_time / len(result)))
     result.save('theguardian.csv')

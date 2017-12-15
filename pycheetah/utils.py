@@ -58,8 +58,8 @@ def init_logger(logdir=None, console=True):
     logging.getLogger().setLevel(logging.DEBUG)
     del logging.getLogger().handlers[:]
 
-    # formatstring = '[%(asctime)s][%(threadName)s][%(module)s][%(funcName)s] %(levelname)s: %(message)s'
-    formatstring = '[%(asctime)s][%(funcName)s] %(levelname)s: %(message)s'
+    formatstring = '[%(asctime)s][%(threadName)s][%(module)s][%(funcName)s] %(levelname)s: %(message)s'
+    #formatstring = '[%(asctime)s][%(funcName)s] %(levelname)s: %(message)s'
     formatter = logging.Formatter(formatstring)
 
     if console:

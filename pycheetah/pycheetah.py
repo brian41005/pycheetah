@@ -41,13 +41,9 @@ class Cheetah:
         self.started_time = time.time()
         try:
             response = Cheetah.__request__(self, self.url)
-            if response is self:
-                '''
-                retry
-                '''
-                return self
-
-            elif response:
+            if response == self.url:
+                return response
+            else:
                 for worker_name, worker in Cheetah.__workers__.items():
                     self.item[worker_name] = worker(self, response)
                 return self.item
@@ -62,7 +58,7 @@ class Cheetah:
         return self.__run()
 
     def retry(self):
-        return self
+        return self.url
 
     def join(self, *args, **kwargs):
         return self.item
@@ -78,11 +74,18 @@ def _fn(task_manager):
     return task_manager.start()
 
 
-def start(urls, cheetah, cpu=None):
+def start(urls, cheetah, cpu=None, verbose=True):
     cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
     partition = [DefaultTaskManager(chunk, cheetah, NUM_THREAD)
                  for chunk in utils.partition(urls, cpu)]
-    map_obj = StrategyMap()
+    t0 = time.time()
+    result = StrategyMap().map(_fn, partition)
 
-    return map_obj.map(_fn, partition)
+    cost_time = time.time() - t0
+    num_of_item = len(result)
+    avg = cost_time / num_of_item
+    logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}, [{:d}] data'.format(
+        cost_time, cost_time / 3600, avg, num_of_item))
+
+    return result
