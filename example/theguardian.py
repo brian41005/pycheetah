@@ -10,7 +10,7 @@ import logging
 import unicodedata
 import requests
 from bs4 import BeautifulSoup
-
+import pickle
 
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
@@ -112,8 +112,8 @@ if __name__ == '__main__':
                       'business', 'lifeandstyle', 'fashion', 'environment',
                       'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
-                                             '2010/1/1',
-                                             '2017/12/10',
+                                             '2017/1/1',
+                                             '2017/12/14',
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
@@ -127,4 +127,6 @@ if __name__ == '__main__':
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result), cost_time / len(result)))
     print(len(urls))
+    with open('result.pkl', 'wb') as f:
+        pickle.dump(result, f)
     result.save('theguardian.csv')
