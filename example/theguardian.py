@@ -9,6 +9,7 @@ import re
 import sys
 import time
 import unicodedata
+import random
 
 import requests
 from bs4 import BeautifulSoup
@@ -74,6 +75,8 @@ class NewsPage(pycheetah.Cheetah):
             res = requests.get(url,
                                timeout=10,
                                headers=headers)
+            if random.randint(0, 9) in (0, 1, 2):
+                return self.retry()
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
                 # logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
@@ -84,12 +87,12 @@ class NewsPage(pycheetah.Cheetah):
             logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
             return self.retry()
 
-    # def get_name(self, soup):
-    #     name = soup.find('h1',
-    #                      attrs={'class': 'content__headline',
-    #                             'itemprop': 'headline'})
-    #     if name:
-    #         return rm_url_tag(str(name)).strip()
+    def get_name(self, soup):
+        name = soup.find('h1',
+                         attrs={'class': 'content__headline',
+                                'itemprop': 'headline'})
+        if name:
+            return rm_url_tag(str(name)).strip()
 
     def get_article(self, soup):
         article = ''
@@ -103,8 +106,8 @@ class NewsPage(pycheetah.Cheetah):
 
         return article
 
-    # def get_category(self, soup):
-    #     return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
+    def get_category(self, soup):
+        return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 
 if __name__ == '__main__':
@@ -126,8 +129,4 @@ if __name__ == '__main__':
     cost_time = time.time() - ts
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result), cost_time / len(result)))
-    print(len(urls))
-    print(list(result[0].keys()))
-    with open('result.pkl', 'wb') as f:
-        pickle.dump(result, f)
     result.save('theguardian.csv')
