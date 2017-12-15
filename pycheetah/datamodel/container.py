@@ -17,7 +17,7 @@ class Result(list, ISaver):
         default_kwargs = {'encoding': 'utf-8', 'newline': '\n', 'mode': 'w'}
         default_kwargs.update(kwargs)
         with open(*args, **default_kwargs) as csvfile:
-            fieldnames = self.__getitem__(0).keys()
+            fieldnames = list(self.__getitem__(0).keys())
             writer = csv.DictWriter(csvfile,
                                     fieldnames=fieldnames,
                                     delimiter=',',

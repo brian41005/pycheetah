@@ -2,15 +2,17 @@
 # this is a example for The Guardian web
 
 
+import logging
 import os
+import pickle
 import re
 import sys
 import time
-import logging
 import unicodedata
+
 import requests
 from bs4 import BeautifulSoup
-import pickle
+
 
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
@@ -82,20 +84,18 @@ class NewsPage(pycheetah.Cheetah):
             logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
             return self.retry()
 
-    def get_name(self, soup):
-        name = soup.find('h1',
-                         attrs={'class': 'content__headline',
-                                'itemprop': 'headline'})
-        if name:
-            return rm_url_tag(str(name)).strip()
+    # def get_name(self, soup):
+    #     name = soup.find('h1',
+    #                      attrs={'class': 'content__headline',
+    #                             'itemprop': 'headline'})
+    #     if name:
+    #         return rm_url_tag(str(name)).strip()
 
     def get_article(self, soup):
         article = ''
-        attrs = {'class': 'content__article-body from-content-api \
-        js-article__body',
+        attrs = {'class': 'content__article-body from-content-api js-article__body',
                  'itemprop': 'articleBody',
-                 'data-test-id': 'article-review-body'
-                 }
+                 'data-test-id': 'article-review-body'}
         for articleBody in soup.find_all('div', attrs=attrs):
 
             for each_p in articleBody.find_all('p'):
@@ -103,8 +103,8 @@ class NewsPage(pycheetah.Cheetah):
 
         return article
 
-    def get_category(self, soup):
-        return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
+    # def get_category(self, soup):
+    #     return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 
 if __name__ == '__main__':
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                       'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/12/14',
+                                             '2017/1/2',
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
@@ -127,6 +127,7 @@ if __name__ == '__main__':
     print('time:%.6f, %d data, avg:%.6f' %
           (cost_time, len(result), cost_time / len(result)))
     print(len(urls))
+    print(list(result[0].keys()))
     with open('result.pkl', 'wb') as f:
         pickle.dump(result, f)
     result.save('theguardian.csv')

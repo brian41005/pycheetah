@@ -27,7 +27,7 @@ class DefaultTaskManager(ABCTaskManager):
         for i, each in enumerate(iterated_obj):
             if type(each) is str:
                 to_do.append(executor.submit(self.cheetah_class(str(i), each)))
-            elif type(each) is self.cheetah_class:
+            elif isinstance(each, self.cheetah_class):
                 to_do.append(executor.submit(each))
 
         results = [future.result() for future in futures.as_completed(to_do)]
@@ -39,7 +39,7 @@ class DefaultTaskManager(ABCTaskManager):
         return retry, done
 
     def start(self):
-        results = []
+        results = Result()
         with futures.ThreadPoolExecutor(self.num_thread) as executor:
             retry_to_do, done = self.__submit(executor, self.urls)
 
@@ -49,4 +49,5 @@ class DefaultTaskManager(ABCTaskManager):
                 retry_to_do, done = self.__submit(executor, retry_to_do)
                 results.extend(done)
         logging.info('end %d urls' % len(results))
-        return Result(results)
+
+        return results
