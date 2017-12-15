@@ -58,6 +58,7 @@ class Cheetah:
         return self.__run()
 
     def retry(self):
+        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
         return self.url
 
     def join(self, *args, **kwargs):

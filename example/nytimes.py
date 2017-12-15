@@ -57,12 +57,10 @@ class NewsPage(pycheetah.Cheetah):
             res = requests.get(url, timeout=3, headers=headers)
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
-                #logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
                 return soup
 
         except (requests.exceptions.ReadTimeout,
                 requests.exceptions.ConnectionError):
-            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
             return self.retry()
 
     def get_title(self, soup):
@@ -103,6 +101,6 @@ if __name__ == '__main__':
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    urls = result.reduce_key('urls')
+    urls = result.reduce_by('urls')
     result = pycheetah.start(urls, NewsPage)
     result.save('nytimes.csv')

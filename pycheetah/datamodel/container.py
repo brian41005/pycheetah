@@ -7,7 +7,7 @@ __all__ = ['Result']
 
 
 class Result(list, ISaver):
-    def reduce_key(self, key):
+    def reduce_by(self, key):
         result = []
         for i in self:
             result.extend(i[key])

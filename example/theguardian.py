@@ -82,8 +82,6 @@ class NewsPage(pycheetah.Cheetah):
                 soup = BeautifulSoup(res.text, 'lxml')
                 return soup
         except (ReadTimeout, ConnectionError):
-            logging.info('RETRY [{:s}][{:s}]'.format(
-                self.name, url.split('/')[-1]))
             return self.retry()
 
     def get_name(self, soup):
@@ -97,8 +95,8 @@ class NewsPage(pycheetah.Cheetah):
         attrs = {'class': 'content__article-body from-content-api js-article__body',
                  'itemprop': 'articleBody',
                  'data-test-id': 'article-review-body'}
-        for articleBody in soup.find_all('div', attrs=attrs):
 
+        for articleBody in soup.find_all('div', attrs=attrs):
             for each_p in articleBody.find_all('p'):
                 article += process(rm_url_tag(each_p.text))
 
@@ -118,9 +116,8 @@ if __name__ == '__main__':
                                              product=[Classification, 'date']))
 
     pycheetah.init_logger()
-    ts = time.time()
 
     result = pycheetah.start(all_daily_urls, DailyPage)
-    urls = result.reduce_key('urls')
+    urls = result.reduce_by('urls')
     result = pycheetah.start(urls, NewsPage)
     result.save('theguardian.csv')
