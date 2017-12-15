@@ -27,8 +27,6 @@ class DailyPage(pycheetah.Cheetah):
         except (requests.exceptions.ReadTimeout,
                 requests.exceptions.ConnectionError) as msg:
             return self.retry()
-        except Exception:
-            logging.critical(msg)
 
     def get_urls(self, soup):
         urls = []
@@ -59,7 +57,7 @@ class NewsPage(pycheetah.Cheetah):
             res = requests.get(url, timeout=3, headers=headers)
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
-                logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
+                #logging.info('[%s][%s]' % (self.name, url.split('/')[-1]))
                 return soup
 
         except (requests.exceptions.ReadTimeout,
@@ -105,10 +103,9 @@ if __name__ == '__main__':
                                    product=['date']))
 
     result = pycheetah.start(urls, DailyPage)
-    t0 = time.time()
-    print(len(result.reduce_key('urls')))
-    # result = pycheetah.start(result['urls'], NewsPage)
+    urls = result.reduce_key('urls')
+    result = pycheetah.start(urls, NewsPage)
     t1 = time.time() - t0
     print('time:%.6f, %d data, avg:%.6f' % (t1, len(result),
                                             t1 / len(result)))
-    print(result[-1])
+    print(len(urls))
