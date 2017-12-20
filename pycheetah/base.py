@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
+from abc import ABCMeta
 
 from . import utils
 
 
-class BaseCheetah(ABC):
+class BaseCheetah:
     __workers__ = {}
     __request__ = None
 
@@ -21,12 +21,11 @@ class BaseCheetah(ABC):
 
         return super(BaseCheetah, cls).__new__(cls)
 
-    @abstractmethod
-    def __run(self):
+    def run(self):
         pass
 
     def __call__(self):
-        return self.__run()
+        return self.run()
 
     def start(self):
-        return self.__run()
+        return self.run()

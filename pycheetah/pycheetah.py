@@ -22,7 +22,7 @@ class Cheetah(BaseCheetah):
         self.item['url'] = self.url
         self.started_time = time.time()
 
-    def __run(self):
+    def run(self):
         self.started_time = time.time()
         response = Cheetah.__request__(self, self.url)
         if response == self.url:
