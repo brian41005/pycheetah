@@ -38,6 +38,12 @@ class TestResult(unittest.TestCase):
         self.r.append({'a': None, 'b': 2})
         self.r.save('test2.csv')
 
+    def test_save3(self):
+        self.r.append({'a': 1, 'b': []})
+        self.r.append({'a': 1, 'b': [None]})
+        self.r.append({'a': 1, 'b': [1, 2, 3]})
+        self.r.save('test3.csv')
+
     def test_reduceby1(self):
         self.r.append({'a': 1, 'b': 1})
         self.r.append({'a': 1, 'b': 2})
@@ -54,3 +60,4 @@ class TestResult(unittest.TestCase):
         csv_list = [i for i in os.listdir(os.getcwd()) if i.find('.csv') != -1]
         for csvfile in csv_list:
             os.remove(csvfile)
+            pass
