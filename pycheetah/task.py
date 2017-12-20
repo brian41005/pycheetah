@@ -1,14 +1,14 @@
 import logging
 import time
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from concurrent import futures
 
-from .datamodel import Result
+from .container import Result
 
 __all__ = ['DefaultTaskManager']
 
 
-class ABCTaskManager(metaclass=ABCMeta):
+class ABCTaskManager(ABC):
 
     @abstractmethod
     def start(self):

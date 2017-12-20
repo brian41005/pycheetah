@@ -1,9 +1,15 @@
 # coding: utf-8
 import csv
-
-from .cscsaver import ISaver
+from abc import ABC, abstractmethod
 
 __all__ = ['Result']
+
+
+class ISaver(ABC):
+
+    @abstractmethod
+    def save(self, file):
+        pass
 
 
 class Result(list, ISaver):
