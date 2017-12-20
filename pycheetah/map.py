@@ -5,7 +5,7 @@ from sys import platform
 
 from .container import Result
 
-__all__ = ['_map', '_map_macos', 'StrategyMap']
+__all__ = ['StrategyMap']
 
 
 def return2queue(fn):

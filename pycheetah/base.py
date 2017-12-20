@@ -1,5 +1,7 @@
 from . import utils
 
+__all__ = ['BaseCheetah']
+
 
 class BaseCheetah:
     __workers__ = {}
