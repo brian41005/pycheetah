@@ -27,10 +27,13 @@ class DefaultTaskManager(ABCTaskManager):
         to_do = [executor.submit(self.cheetah_cls(str(i), each))
                  for i, each in enumerate(iterable)]
 
-        results = [future.result() for future in futures.as_completed(to_do)]
-
-        retry = list(filter(lambda result: type(result) is str, results))
-        done = list(filter(lambda result: type(result) is dict, results))
+        retry, done = [], []
+        for future in futures.as_completed(to_do):
+            res = future.result()
+            if isinstance(res, str):
+                retry.append(res)
+            elif isinstance(res, dict):
+                done.append(res)
 
         logging.info('[{}] done, [{}] urls need to be resubmited'.format(
             len(done), len(retry)))
