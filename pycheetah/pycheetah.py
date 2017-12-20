@@ -6,28 +6,13 @@ import time
 from . import utils
 from .map import StrategyMap
 from .task import DefaultTaskManager
+from ._base import BaseCheetah
 
 __all__ = ['Cheetah', 'start']
 NUM_THREAD = 5
 
 
-class Cheetah:
-    __workers__ = {}
-    __request__ = None
-
-    def __new__(cls, *args, **kwargs):
-        for func_str in (set(dir(cls)) - set(dir(Cheetah))):
-            func = getattr(cls, func_str)
-            if func.__name__.startswith('get_') and callable(func):
-                name = func.__name__.replace('get_', '')
-                Cheetah.__workers__[name] = utils.addLogger(func)
-            elif func.__name__ == 'request' and callable(func):
-                Cheetah.__request__ = utils.addLogger(func)
-
-        if not Cheetah.__request__ and not callable(Cheetah.__request__):
-            raise NotImplementedError('request method not found!')
-
-        return super(Cheetah, cls).__new__(cls)
+class Cheetah(BaseCheetah):
 
     def __init__(self, name, url):
         self.url = url
@@ -46,12 +31,6 @@ class Cheetah:
             for item_name, worker in Cheetah.__workers__.items():
                 self.item[item_name] = worker(self, response)
             return self.item
-
-    def __call__(self):
-        return self.__run()
-
-    def start(self):
-        return self.__run()
 
     def retry(self):
         logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
