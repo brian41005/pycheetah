@@ -72,7 +72,6 @@ def init_logger(logdir=None, console=True):
     del logging.getLogger().handlers[:]
 
     formatstring = '[%(asctime)s][%(threadName)s][%(module)s][%(funcName)s] %(levelname)s: %(message)s'
-    #formatstring = '[%(asctime)s][%(funcName)s] %(levelname)s: %(message)s'
     formatter = logging.Formatter(formatstring)
 
     if console:
