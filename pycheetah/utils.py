@@ -6,7 +6,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-__all__ = ['gen_urls', 'partition', 'init_logger', 'addLogger']
+__all__ = ['gen_urls', 'partition']
 
 
 def partition(container, n):
@@ -31,7 +31,8 @@ def partition(container, n):
 
 
 def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date']):
-    '''general generator for news url
+    '''
+    general generator for news url
 
     url: string, like 'https://www.theguardian.com/%s/%s/all'
 
@@ -54,39 +55,3 @@ def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date'
     product = list(itertools.product(*product))
     for each_prod in product:
         yield url % each_prod
-
-
-def addLogger(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as msg:
-            logging.exception(
-                'there was an exception in {:s}'.format(func.__name__))
-    return wrapper
-
-
-def init_logger(logdir=None, console=True):
-    logging.getLogger().setLevel(logging.DEBUG)
-    del logging.getLogger().handlers[:]
-
-    formatstring = '[%(asctime)s][%(threadName)s][%(module)s][%(funcName)s] %(levelname)s: %(message)s'
-    formatter = logging.Formatter(formatstring)
-
-    if console:
-
-        consoleLogger = logging.StreamHandler(stream=sys.stdout)
-        consoleLogger.setLevel(logging.INFO)
-        consoleLogger.setFormatter(formatter)
-        logging.getLogger().addHandler(consoleLogger)
-
-    if logdir:
-        filename = '%s.log' % datetime.now().strftime('%Y_%m_%d__%H_%M_%S')
-        logpath = os.path.join(logdir, filename)
-        fileLogger = logging.FileHandler(logpath)
-        fileLogger.setLevel(logging.INFO)
-        fileLogger.setFormatter(formatter)
-        logging.getLogger().addHandler(fileLogger)
-    logging.info('You got (%s) logging handler' %
-                 str(logging.getLogger().handlers))

@@ -61,8 +61,9 @@ def start(urls, cheetah, cpu=None, verbose=True):
     cost_time = time.time() - t0
     num_of_item = len(result)
     avg = cost_time / num_of_item
+
     if verbose:
-        logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}, [{:d}] data'.format(
+        logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}s, [{:d}] data'.format(
             cost_time, cost_time / 3600, avg, num_of_item))
 
     return result

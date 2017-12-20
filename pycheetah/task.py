@@ -23,7 +23,7 @@ class DefaultTaskManager(ABCTaskManager):
         self.num_thread = min(len(self.urls), num_thread)
 
     def __submit(self, executor, iterable):
-        logging.info('start submit {} urls'.format(len(iterable)))
+        logging.info('submitting {} urls'.format(len(iterable)))
         to_do = [executor.submit(self.cheetah_cls(str(i), each))
                  for i, each in enumerate(iterable)]
 
