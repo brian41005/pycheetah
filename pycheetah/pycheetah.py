@@ -6,7 +6,7 @@ import time
 from . import utils
 from .map import StrategyMap
 from .task import DefaultTaskManager
-from ._base import BaseCheetah
+from .base import BaseCheetah
 
 __all__ = ['Cheetah', 'start']
 NUM_THREAD = 5
