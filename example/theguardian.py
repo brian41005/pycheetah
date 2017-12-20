@@ -107,13 +107,13 @@ class NewsPage(pycheetah.Cheetah):
 
 
 if __name__ == '__main__':
-    Classification = ['world', 'politics', 'sport', 'football', 'culture',
-                      'business', 'lifeandstyle', 'fashion', 'environment',
-                      'technology', 'travel']
+    category = ['world', 'politics', 'sport', 'football', 'culture',
+                'business', 'lifeandstyle', 'fashion', 'environment',
+                'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
                                              '2017/1/1',
-                                             product=[Classification, 'date']))
+                                             product=[category, 'date']))
 
     pycheetah.init_logger()
 
