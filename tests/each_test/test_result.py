@@ -38,6 +38,18 @@ class TestResult(unittest.TestCase):
         self.r.append({'a': None, 'b': 2})
         self.r.save('test2.csv')
 
+    def test_reduceby1(self):
+        self.r.append({'a': 1, 'b': 1})
+        self.r.append({'a': 1, 'b': 2})
+        result = self.r.reduce_by('a')
+        self.assertEqual([1, 1], result)
+
+    def test_reduceby2(self):
+        self.r.append({'a': [1], 'b': 1})
+        self.r.append({'a': None, 'b': 2})
+        result = self.r.reduce_by('a')
+        self.assertEqual([1, None], result)
+
     def tearDown(self):
         csv_list = [i for i in os.listdir(os.getcwd()) if i.find('.csv') != -1]
         for csvfile in csv_list:

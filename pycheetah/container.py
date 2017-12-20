@@ -16,7 +16,10 @@ class Result(list, ISaver):
     def reduce_by(self, key):
         result = []
         for i in self:
-            result.extend(i[key])
+            if type(i[key]) is list:
+                result.extend(i[key])
+            else:
+                result.append(i[key])
         return result
 
     def save(self, *args, **kwargs):
