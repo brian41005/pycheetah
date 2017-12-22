@@ -42,11 +42,11 @@ class Cheetah(BaseCheetah):
     def join(self, *args, **kwargs):
         return self.item
 
-    def __lt__(self, other):
-        return (self.started_time < other.started_time)
+    # def __lt__(self, other):
+    #     return (self.started_time < other.started_time)
 
-    def __le__(self, other):
-        return (self.started_time <= other.started_time)
+    # def __le__(self, other):
+    #     return (self.started_time <= other.started_time)
 
 
 def _fn(task_manager):
