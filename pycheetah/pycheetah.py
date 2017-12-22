@@ -17,18 +17,21 @@ class Cheetah(BaseCheetah):
     def __init__(self, name, url):
         self.url = url
         self.name = name
+        worker_methods = self.__class__.__workers__
         self.item = {item_name: None for item_name,
-                     _ in Cheetah.__workers__.items()}
+                     _ in worker_methods.items()}
         self.item['url'] = self.url
         self.started_time = time.time()
 
     def run(self):
         self.started_time = time.time()
-        response = Cheetah.__request__(self, self.url)
+        request_method = self.__class__.__request__
+        response = request_method(self, self.url)
         if response == self.url:
             return response
         elif response:
-            for item_name, worker in Cheetah.__workers__.items():
+            worker_methods = self.__class__.__workers__
+            for item_name, worker in worker_methods.items():
                 self.item[item_name] = worker(self, response)
             return self.item
 
