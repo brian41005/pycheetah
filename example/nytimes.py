@@ -34,7 +34,7 @@ sbi_debug=false',
 class DailyPage(pycheetah.Cheetah):
     def request(self, url):
         try:
-            return BeautifulSoup(requests.get(url, timeout=5,
+            return BeautifulSoup(requests.get(url, timeout=3,
                                               headers=headers).text,
                                  'lxml')
         except (ReadTimeout, ConnectionError) as msg:
@@ -60,7 +60,7 @@ class NewsPage(pycheetah.Cheetah):
 
     def request(self, url):
         try:
-            res = requests.get(url, timeout=5, headers=headers)
+            res = requests.get(url, timeout=3, headers=headers)
             if res:
                 return BeautifulSoup(res.text, 'lxml')
         except (ReadTimeout, ConnectionError):

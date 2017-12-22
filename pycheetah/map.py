@@ -8,6 +8,10 @@ from .container import Result
 __all__ = ['StrategyMap']
 
 
+def _fn(task_manager):
+    return task_manager.start()
+
+
 def return2queue(fn):
     @wraps(fn)
     def func_wrapper(*args, queue):
@@ -48,5 +52,5 @@ class StrategyMap:
     def __init__(self):
         self.__map = _map_macos if platform == 'darwin' else _map
 
-    def map(self, *args, **kwargs):
-        return self.__map(*args, **kwargs)
+    def map(self, iterable_obj, **kwargs):
+        return self.__map(_fn, iterable_obj, **kwargs)

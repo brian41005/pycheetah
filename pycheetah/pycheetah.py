@@ -48,17 +48,13 @@ class Cheetah(BaseCheetah):
     #     return (self.started_time <= other.started_time)
 
 
-def _fn(task_manager):
-    return task_manager.start()
-
-
 def start(urls, cheetah, cpu=None, verbose=True):
     cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
     partition = [DefaultTaskManager(chunk, cheetah)
                  for chunk in utils.partition(urls, cpu)]
     t0 = time.time()
-    result = StrategyMap().map(_fn, partition)
+    result = StrategyMap().map(partition)
 
     cost_time = time.time() - t0
     num_of_item = len(result)
