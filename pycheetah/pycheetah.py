@@ -9,7 +9,6 @@ from .map import StrategyMap
 from .task import DefaultTaskManager
 
 __all__ = ['Cheetah', 'start']
-NUM_THREAD = 5
 
 
 class Cheetah(BaseCheetah):
@@ -56,7 +55,7 @@ def _fn(task_manager):
 def start(urls, cheetah, cpu=None, verbose=True):
     cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
-    partition = [DefaultTaskManager(chunk, cheetah, NUM_THREAD)
+    partition = [DefaultTaskManager(chunk, cheetah)
                  for chunk in utils.partition(urls, cpu)]
     t0 = time.time()
     result = StrategyMap().map(_fn, partition)

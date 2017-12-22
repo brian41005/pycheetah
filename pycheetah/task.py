@@ -17,7 +17,7 @@ class ABCTaskManager(ABC):
 
 class DefaultTaskManager(ABCTaskManager):
 
-    def __init__(self, urls, cheetah, num_thread=1):
+    def __init__(self, urls, cheetah, num_thread=5):
         self.urls = urls
         self.cheetah_cls = cheetah
         self.num_thread = min(len(self.urls), num_thread)

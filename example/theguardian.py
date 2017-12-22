@@ -106,7 +106,7 @@ class NewsPage(pycheetah.Cheetah):
         return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
 
 
-if __name__ == '__main__':
+def main():
     category = ['world', 'politics', 'sport', 'football', 'culture',
                 'business', 'lifeandstyle', 'fashion', 'environment',
                 'technology', 'travel']
@@ -121,3 +121,7 @@ if __name__ == '__main__':
     urls = result.reduce_by('urls')
     result = pycheetah.start(urls, NewsPage)
     result.save('theguardian.csv')
+
+
+if __name__ == '__main__':
+    main()

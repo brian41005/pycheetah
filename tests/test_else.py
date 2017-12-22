@@ -1,14 +1,11 @@
 # coding: utf-8
-import functools
 import os
+import random
 import re
 import sys
 import time
-import random
 import unicodedata
 import unittest
-from collections import deque
-from multiprocessing import Pool, Process
 
 
 class TestElse(unittest.TestCase):
@@ -19,3 +16,9 @@ class TestElse(unittest.TestCase):
         retry = list(filter(lambda result: type(result) is str, results))
         done = list(filter(lambda result: type(result) is dict, results))
         self.assertLessEqual(time.time() - t0, 0.05)
+
+    def test_theguardian(self):
+        pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.append(pkg_dir + '/example')
+        import example.theguardian
+        example.theguardian.main
