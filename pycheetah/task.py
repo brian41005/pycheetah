@@ -2,7 +2,7 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from concurrent import futures
-
+from tqdm import tqdm
 from .container import Result
 
 __all__ = ['DefaultTaskManager']
@@ -28,7 +28,8 @@ class DefaultTaskManager(ABCTaskManager):
                  for i, each in enumerate(iterable)]
 
         retry, done = [], []
-        for future in futures.as_completed(to_do):
+        for future in tqdm(futures.as_completed(to_do),
+                           total=len(iterable), desc='crawling'):
             res = future.result()
             if isinstance(res, str):
                 retry.append(res)
