@@ -30,7 +30,7 @@ def partition(container, n):
     yield container[start:]
 
 
-def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date']):
+def gen_urls(url, startdate=None, enddate=None, date_format='%Y/%b/%d', product=['date']):
     '''
     general generator for news url
 
@@ -42,16 +42,21 @@ def gen_urls(url, startdate, enddate, *, date_format='%Y/%b/%d', product=['date'
 
     date_format: format, '%Y/%m/%d'
 
-    product: ['date'] or ['date', other, other, ...]
+    product: list, Cartesian product ['date'] or ['date', other, other, ...]
 
     '''
-    start = datetime.strptime(startdate, '%Y/%m/%d')
-    end = datetime.strptime(enddate, '%Y/%m/%d')
-    datelist = [(start + timedelta(days=x)).strftime(date_format).lower()
-                for x in range(0, (end - start).days + 1)]
+    if startdate and enddate:
+        start = datetime.strptime(startdate, '%Y/%m/%d')
+        end = datetime.strptime(enddate, '%Y/%m/%d')
+        datelist = [(start + timedelta(days=x)).strftime(date_format).lower()
+                    for x in range(0, (end - start).days + 1)]
+    try:
 
-    date_index = product.index('date')
-    product[date_index] = datelist
+        date_index = product.index('date')
+        product[date_index] = datelist
+    except ValueError:
+        pass
+
     product = list(itertools.product(*product))
     for each_prod in product:
         yield url % each_prod

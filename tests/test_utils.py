@@ -35,6 +35,13 @@ class TestUtils(unittest.TestCase):
                                            product=['date'])]
         self.assertEqual(5, len(l))
 
+    def test_gen_urls_for_ptt(self):
+        l = [i for i in pycheetah.gen_urls('https://www.ptt.cc/bbs/movie/index%d.html',
+
+                                           product=[list(range(6188, 6189))])]
+        self.assertEqual(1, len(l))
+        self.assertEqual('https://www.ptt.cc/bbs/movie/index6188.html', l[0])
+
     def test_get_urls_exception(self):
         Classification = ['world']
         with self.assertRaises(ValueError):
