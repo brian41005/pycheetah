@@ -82,7 +82,7 @@ class NewsPage(pycheetah.Cheetah):
             'p', attrs={'class': 'story-body-text story-content'})
         article = ''
         for each_p in p:
-            article += ' ' + each_p.text
+            article += '\t' + each_p.text
         if article:
             return article
 
