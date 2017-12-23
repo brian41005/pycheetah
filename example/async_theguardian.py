@@ -1,23 +1,22 @@
 # coding: utf-8
-# this is a example for The Guardian web
+'''
+async version
+'''
 
 
-import logging
 import os
-import pickle
 import re
 import sys
-import time
 import unicodedata
-import random
 
 import aiohttp
 from bs4 import BeautifulSoup
-
-
+import requests
+from requests.exceptions import ReadTimeout, ConnectionError
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
+
 
 headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/\
@@ -75,11 +74,12 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/1/5',
+                                             '2017/1/1',
                                              product=[category, 'date']))
-    # pycheetah.init_logger()
+    pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)
-    print(result.reduce_by('urls'))
+    # print(result)
+    assert result.reduce_by('urls') != []
 
 
 if __name__ == '__main__':

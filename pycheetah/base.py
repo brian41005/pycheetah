@@ -1,25 +1,40 @@
 from . import log
-from abc import abstractmethod
-__all__ = ['BaseCheetah']
+from abc import abstractmethod, ABCMeta
+__all__ = ['BaseCheetah', 'Worker']
+
+
+class Worker(dict):
+
+    def addfn(self, fn):
+        if callable(fn):
+            fn_name = fn.__name__
+            self[fn_name] = fn
+        else:
+            raise TypeError('fn is not callable')
+
+    def __getattr__(self, name):
+        return self[name]
 
 
 class BaseCheetah:
-    __workers__ = {}
-    __request__ = None
+    worker = None
 
-    def __new__(cls, *args, **kwargs):
-        if not (BaseCheetah.__workers__ and BaseCheetah.__request__):
+    request = None
+
+    def __new__(cls, *agrs):
+
+        if not cls.worker:
+            cls.worker = Worker()
             for func_str in (set(dir(cls)) - set(dir(BaseCheetah))):
                 func = getattr(cls, func_str)
                 if callable(func):
                     if func.__name__.startswith('get_'):
-                        name = func.__name__.replace('get_', '')
-                        BaseCheetah.__workers__[name] = log.addLogger(func)
+                        func.__name__ = func.__name__.replace('get_', '')
+                        cls.worker.addfn(log.addLogger(func))
                     elif func.__name__ == 'request':
-                        BaseCheetah.__request__ = log.addLogger(func)
+                        cls.request = log.addLogger(func)
 
-            if not BaseCheetah.__request__ and \
-                    not callable(BaseCheetah.__request__):
+            if not cls.request:
                 raise NotImplementedError('request method not found!')
 
         return super(BaseCheetah, cls).__new__(cls)
@@ -30,10 +45,3 @@ class BaseCheetah:
     @abstractmethod
     def __call__(self):
         raise NotImplementedError
-
-    def retry(self):
-        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
-        return self.url
-
-    def join(self, *args, **kwargs):
-        return self.item

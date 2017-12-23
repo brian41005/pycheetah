@@ -1,12 +1,14 @@
 # coding: utf-8
+import asyncio
+import inspect
 import logging
 import os
 import time
-import asyncio
+
 from . import utils
 from .base import BaseCheetah
 from .map import StrategyMap
-from .task import DefaultTaskManager, AsyncTaskManager
+from .task import AsyncTaskManager, DefaultTaskManager
 
 __all__ = ['Cheetah', 'start', 'AsyncCheetah']
 
@@ -17,26 +19,30 @@ class Cheetah(BaseCheetah):
     def __init__(self, name, url):
         self.url = url
         self.name = name
-        worker_methods = self.__class__.__workers__
+        self.worker = self.__class__.worker
         self.item = {item_name: None for item_name,
-                     _ in worker_methods.items()}
+                     _ in self.worker.items()}
         self.item['url'] = self.url
         self.started_time = time.time()
 
     def run(self):
         self.started_time = time.time()
-        request_method = self.__class__.__request__
-        response = request_method(self, self.url)
-        if response == self.url:
-            return response
-        elif response:
-            worker_methods = self.__class__.__workers__
-            for item_name, worker in worker_methods.items():
-                self.item[item_name] = worker(self, response)
+        request_method = self.request
+        resp = request_method(self.url)
+
+        if resp == self.url:
+            return resp
+        elif resp:
+            for key, fn in self.worker.items():
+                self.item[key] = fn(self, resp)
             return self.item
 
     def __call__(self):
         return self.run()
+
+    def retry(self):
+        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
+        return self.url
 
 
 class AsyncCheetah(BaseCheetah):
@@ -45,28 +51,30 @@ class AsyncCheetah(BaseCheetah):
     def __init__(self, name, url):
         self.url = url
         self.name = name
-        worker_methods = self.__class__.__workers__
         self.item = {item_name: None for item_name,
-                     _ in worker_methods.items()}
+                     _ in self.__class__.worker.items()}
         self.item['url'] = self.url
         self.started_time = time.time()
 
     async def run(self):
         self.started_time = time.time()
-        request_method = asyncio.coroutine(self.__class__.__request__)
-
-        response = await request_method(self, self.url)
-        if response == self.url:
-            return response
-        elif response:
-            worker_methods = self.__class__.__workers__
-            for item_name, worker in worker_methods.items():
-                worker = asyncio.coroutine(worker)
-                self.item[item_name] = await worker(self, response)
+        worker = self.__class__.worker
+        resp = await self.request(self.url)
+        if resp == self.url:
+            return resp
+        elif resp:
+            for key, fn in worker.items():
+                if not asyncio.iscoroutinefunction(fn):
+                    fn = asyncio.coroutine(fn)
+                self.item[key] = await fn(self, resp)
             return self.item
 
     async def __call__(self):
         return await self.run()
+
+    def retry(self):
+        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
+        return self.url
 
 
 def start(urls, cheetah, cpu=None, verbose=True):
