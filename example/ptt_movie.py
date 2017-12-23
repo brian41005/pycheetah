@@ -72,8 +72,9 @@ class Article(pycheetah.Cheetah):
 
 
 if __name__ == '__main__':
+    pycheetah.init_logger()
     urls = list(pycheetah.gen_urls('https://www.ptt.cc/bbs/movie/index%d.html',
-                                   product=[list(range(6188, 6189))]))
+                                   product=[list(range(5188, 6189))]))
 
     result = pycheetah.start(urls, Board)
     urls = result.reduce_by('links')

@@ -1,5 +1,5 @@
 from . import log
-
+from abc import abstractmethod
 __all__ = ['BaseCheetah']
 
 
@@ -11,11 +11,12 @@ class BaseCheetah:
         if not (BaseCheetah.__workers__ and BaseCheetah.__request__):
             for func_str in (set(dir(cls)) - set(dir(BaseCheetah))):
                 func = getattr(cls, func_str)
-                if func.__name__.startswith('get_') and callable(func):
-                    name = func.__name__.replace('get_', '')
-                    BaseCheetah.__workers__[name] = log.addLogger(func)
-                elif func.__name__ == 'request' and callable(func):
-                    BaseCheetah.__request__ = log.addLogger(func)
+                if callable(func):
+                    if func.__name__.startswith('get_'):
+                        name = func.__name__.replace('get_', '')
+                        BaseCheetah.__workers__[name] = log.addLogger(func)
+                    elif func.__name__ == 'request':
+                        BaseCheetah.__request__ = log.addLogger(func)
 
             if not BaseCheetah.__request__ and \
                     not callable(BaseCheetah.__request__):
@@ -26,8 +27,13 @@ class BaseCheetah:
     def run(self):
         pass
 
+    @abstractmethod
     def __call__(self):
-        return self.run()
+        raise NotImplementedError
 
-    def start(self):
-        return self.run()
+    def retry(self):
+        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
+        return self.url
+
+    def join(self, *args, **kwargs):
+        return self.item

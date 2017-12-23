@@ -1,4 +1,5 @@
 import concurrent.futures
+import logging
 from functools import wraps
 from multiprocessing import Process, Queue
 from sys import platform
@@ -18,6 +19,14 @@ def return2queue(fn):
         result_obj = fn(*args)
         queue.put(result_obj)
     return func_wrapper
+
+
+def _map_single(fn, partition):
+    logging.info(len(partition))
+    temp_result = Result()
+    for res_obj in map(fn, partition):
+        temp_result.extend(res_obj)
+    return temp_result
 
 
 def _map(fn, partition):
@@ -49,8 +58,11 @@ def _map_macos(fn, partition):
 
 
 class StrategyMap:
-    def __init__(self):
-        self.__map = _map_macos if platform == 'darwin' else _map
+    def __init__(self, thread=True):
+        if thread:
+            self.__map = _map_macos if platform == 'darwin' else _map
+        else:
+            self.__map = _map
 
     def map(self, iterable_obj, **kwargs):
-        return self.__map(_fn, iterable_obj, **kwargs)
+        return self.__map(_fn, iterable_obj)
