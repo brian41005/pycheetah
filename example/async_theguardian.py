@@ -53,8 +53,9 @@ class DailyPage(pycheetah.AsyncCheetah):
 
     async def request(self, url):
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.github.com/events') as resp:
-                return BeautifulSoup(await resp.text(), 'lxml')
+            async with session.get(url) as resp:
+                soup = BeautifulSoup(await resp.text(), 'lxml')
+                return soup
 
     def get_urls(self, soup):
         urls = []
@@ -76,8 +77,9 @@ def main():
                                              '2017/1/1',
                                              '2017/1/5',
                                              product=[category, 'date']))
-    pycheetah.init_logger()
+    # pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)
+    print(result.reduce_by('urls'))
 
 
 if __name__ == '__main__':
