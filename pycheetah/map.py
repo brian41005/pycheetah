@@ -21,7 +21,7 @@ def return2queue(fn):
     return func_wrapper
 
 
-def _map_single(fn, partition):
+def _map_single_cpu(fn, partition):
     logging.info(len(partition))
     temp_result = Result()
     for res_obj in map(fn, partition):
@@ -38,6 +38,9 @@ def _map(fn, partition):
 
 
 def _map_macos(fn, partition):
+    '''
+    temp solution
+    '''
     q = Queue()
     temp_result = Result()
     fn = return2queue(fn)
@@ -58,11 +61,12 @@ def _map_macos(fn, partition):
 
 
 class StrategyMap:
-    def __init__(self, is_concurrent=True):
-        if is_concurrent:
+    def __init__(self, *, cpu):
+        logging.info('using {} cpu'.format(cpu))
+        if cpu > 1:
             self.__map = _map_macos if platform == 'darwin' else _map
         else:
-            self.__map = _map
+            self.__map = _map_single_cpu
 
     def map(self, iterable_obj, **kwargs):
         return self.__map(_fn, iterable_obj)

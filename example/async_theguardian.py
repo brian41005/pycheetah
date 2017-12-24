@@ -51,7 +51,7 @@ def process(article):
 class DailyPage(pycheetah.AsyncCheetah):
 
     async def request(self, url):
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(headers=headers) as session:
             async with session.get(url) as resp:
                 soup = BeautifulSoup(await resp.text(), 'lxml')
                 return soup
@@ -74,7 +74,7 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/2/1',
+                                             '2017/5/1',
                                              product=[category, 'date']))
     pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)

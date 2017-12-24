@@ -14,7 +14,7 @@ __all__ = ['Cheetah', 'start', 'AsyncCheetah']
 
 
 class Cheetah(BaseCheetah):
-    thread = 5
+    concurrent = 5
 
     def __init__(self, name, url):
         self.url = url
@@ -46,7 +46,7 @@ class Cheetah(BaseCheetah):
 
 
 class AsyncCheetah(BaseCheetah):
-    thread = False
+    concurrent = 1
 
     def __init__(self, name, url):
         self.url = url
@@ -85,12 +85,10 @@ def start(urls, cheetah, cpu=None, verbose=True):
     partition = []
     for chunk in utils.partition(urls, cpu):
         manager = TaskManagerFactory.create_taskmanager(
-            cheetah.thread,
-            chunk,
-            cheetah)
+            cheetah.concurrent, chunk, cheetah)
         partition.append(manager)
 
-    result = StrategyMap(is_concurrent=cpu).map(partition)
+    result = StrategyMap(cpu=cpu).map(partition)
 
     cost_time = time.time() - t0
     num_of_item = len(result)

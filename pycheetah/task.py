@@ -4,9 +4,9 @@ import time
 from abc import ABC, abstractmethod
 from concurrent import futures
 
-
 from .container import Result
 from .utils import partition
+
 __all__ = ['TaskManagerFactory']
 
 
@@ -100,8 +100,11 @@ class ThreadTaskManager(ABCTaskManager):
 class TaskManagerFactory:
 
     @staticmethod
-    def create_taskmanager(isthread, iterable, cheetah):
-        if isthread:
+    def create_taskmanager(concurrent, iterable, cheetah):
+        if concurrent > 1:
             return ThreadTaskManager(iterable, cheetah)
-        else:
+        elif concurrent == 1:
             return AsyncTaskManager(iterable, cheetah)
+        else:
+            raise ValueError(
+                'concurrent should be > 0, {%d} given '.format(concurrent))
