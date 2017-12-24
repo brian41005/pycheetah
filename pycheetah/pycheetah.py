@@ -8,13 +8,13 @@ import time
 from . import utils
 from .base import BaseCheetah
 from .map import StrategyMap
-from .task import AsyncTaskManager, DefaultTaskManager
+from .task import TaskManagerFactory
 
 __all__ = ['Cheetah', 'start', 'AsyncCheetah']
 
 
 class Cheetah(BaseCheetah):
-    thread = True
+    thread = 5
 
     def __init__(self, name, url):
         self.url = url
@@ -81,15 +81,16 @@ def start(urls, cheetah, cpu=None, verbose=True):
     cpu = cpu if cpu else os.cpu_count()
     cpu = min(len(urls), cpu)
     t0 = time.time()
-    if not cheetah.thread:
-        partition = [AsyncTaskManager(chunk, cheetah)
-                     for chunk in utils.partition(urls, cpu)]
-        result = StrategyMap(thread=False).map(partition)
-    else:
 
-        partition = [DefaultTaskManager(chunk, cheetah)
-                     for chunk in utils.partition(urls, cpu)]
-        result = StrategyMap().map(partition)
+    partition = []
+    for chunk in utils.partition(urls, cpu):
+        manager = TaskManagerFactory.create_taskmanager(
+            cheetah.thread,
+            chunk,
+            cheetah)
+        partition.append(manager)
+
+    result = StrategyMap(is_concurrent=cpu).map(partition)
 
     cost_time = time.time() - t0
     num_of_item = len(result)

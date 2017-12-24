@@ -58,8 +58,8 @@ def _map_macos(fn, partition):
 
 
 class StrategyMap:
-    def __init__(self, thread=True):
-        if thread:
+    def __init__(self, is_concurrent=True):
+        if is_concurrent:
             self.__map = _map_macos if platform == 'darwin' else _map
         else:
             self.__map = _map

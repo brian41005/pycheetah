@@ -112,15 +112,15 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/1/1',
+                                             '2017/2/1',
                                              product=[category, 'date']))
 
     pycheetah.init_logger()
 
     result = pycheetah.start(all_daily_urls, DailyPage)
-    urls = result.reduce_by('urls')
-    result = pycheetah.start(urls, NewsPage)
-    result.save('theguardian.csv')
+    #urls = result.reduce_by('urls')
+    #result = pycheetah.start(urls, NewsPage)
+    # result.save('theguardian.csv')
 
 
 if __name__ == '__main__':
