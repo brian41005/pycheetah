@@ -51,10 +51,13 @@ def process(article):
 class DailyPage(pycheetah.AsyncCheetah):
 
     async def request(self, url):
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url) as resp:
-                soup = BeautifulSoup(await resp.text(), 'lxml')
-                return soup
+        try:
+            async with aiohttp.ClientSession(headers=headers) as session:
+                async with session.get(url) as resp:
+                    soup = BeautifulSoup(await resp.text(), 'lxml')
+                    return soup
+        except aiohttp.ClientConnectorError:
+            return self.retry()
 
     def get_urls(self, soup):
         urls = []
