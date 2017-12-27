@@ -57,7 +57,7 @@ class AsyncTaskManager(ABCTaskManager):
 
     def _submit(self, iterable):
         logging.info('submitting {} urls'.format(len(iterable)))
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()  # instead of get_event_loop
         result_obj = Result()
 
         tasks = []

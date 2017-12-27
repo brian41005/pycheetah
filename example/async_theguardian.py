@@ -11,8 +11,8 @@ import unicodedata
 
 import aiohttp
 from bs4 import BeautifulSoup
-import requests
-from requests.exceptions import ReadTimeout, ConnectionError
+
+
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
 import pycheetah
@@ -77,7 +77,7 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/5/1',
+                                             '2017/1/1',
                                              product=[category, 'date']))
     pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)
