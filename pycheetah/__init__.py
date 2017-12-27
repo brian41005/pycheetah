@@ -5,3 +5,4 @@ from .task import *
 from .container import *
 from .log import init_logger
 from .base import *
+from .command import *

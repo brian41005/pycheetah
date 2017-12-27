@@ -1,6 +1,8 @@
+from abc import ABCMeta, abstractmethod
+
 from . import log
-from abc import abstractmethod, ABCMeta
-__all__ = ['BaseCheetah', 'Worker']
+
+__all__ = ('BaseCheetah', 'Worker')
 
 
 class Worker(dict):
@@ -44,4 +46,4 @@ class BaseCheetah:
 
     @abstractmethod
     def __call__(self):
-        raise NotImplementedError
+        pass

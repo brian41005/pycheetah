@@ -7,10 +7,11 @@ import time
 
 from . import utils
 from .base import BaseCheetah
+from .command import *
 from .map import StrategyMap
 from .task import TaskManagerFactory
 
-__all__ = ['Cheetah', 'start', 'AsyncCheetah']
+__all__ = ('Cheetah', 'start', 'AsyncCheetah')
 
 
 class Cheetah(BaseCheetah):
@@ -23,26 +24,20 @@ class Cheetah(BaseCheetah):
         self.item = {item_name: None for item_name,
                      _ in self.worker.items()}
         self.item['url'] = self.url
-        self.started_time = time.time()
 
     def run(self):
-        self.started_time = time.time()
         request_method = self.request
         resp = request_method(self.url)
-
-        if resp == self.url:
-            return resp
-        elif resp:
+        if resp:
             for key, fn in self.worker.items():
                 self.item[key] = fn(self, resp)
             return self.item
 
     def __call__(self):
-        return self.run()
-
-    def retry(self):
-        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
-        return self.url
+        try:
+            return self.run()
+        except Retry:
+            return self.url
 
 
 class AsyncCheetah(BaseCheetah):
@@ -54,15 +49,11 @@ class AsyncCheetah(BaseCheetah):
         self.item = {item_name: None for item_name,
                      _ in self.__class__.worker.items()}
         self.item['url'] = self.url
-        self.started_time = time.time()
 
     async def run(self):
-        self.started_time = time.time()
         worker = self.__class__.worker
         resp = await self.request(self.url)
-        if resp == self.url:
-            return resp
-        elif resp:
+        if resp:
             for key, fn in worker.items():
                 if not asyncio.iscoroutinefunction(fn):
                     fn = asyncio.coroutine(fn)
@@ -71,11 +62,10 @@ class AsyncCheetah(BaseCheetah):
             return self.item
 
     async def __call__(self):
-        return await self.run()
-
-    def retry(self):
-        logging.info('RETRY [{:80s}]'.format(self.name + '|' + self.url))
-        return self.url
+        try:
+            return await self.run()
+        except Retry:
+            return self.url
 
 
 def start(urls, cheetah, cpu=None, verbose=True):
