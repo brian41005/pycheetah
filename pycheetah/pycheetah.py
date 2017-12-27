@@ -66,6 +66,7 @@ class AsyncCheetah(BaseCheetah):
             for key, fn in worker.items():
                 if not asyncio.iscoroutinefunction(fn):
                     fn = asyncio.coroutine(fn)
+                    worker.update({key: fn})
                 self.item[key] = await fn(self, resp)
             return self.item
 
