@@ -17,14 +17,6 @@ __all__ = ('Cheetah', 'start', 'AsyncCheetah')
 class Cheetah(BaseCheetah):
     concurrent = 5
 
-    def __init__(self, name, url):
-        self.url = url
-        self.name = name
-        self.worker = self.__class__.worker
-        self.item = {item_name: None for item_name,
-                     _ in self.worker.items()}
-        self.item['url'] = self.url
-
     def run(self):
         request_method = self.request
         resp = request_method(self.url)
@@ -43,21 +35,13 @@ class Cheetah(BaseCheetah):
 class AsyncCheetah(BaseCheetah):
     concurrent = 1
 
-    def __init__(self, name, url):
-        self.url = url
-        self.name = name
-        self.item = {item_name: None for item_name,
-                     _ in self.__class__.worker.items()}
-        self.item['url'] = self.url
-
     async def run(self):
-        worker = self.__class__.worker
         resp = await self.request(self.url)
         if resp:
-            for key, fn in worker.items():
+            for key, fn in self.worker.items():
                 if not asyncio.iscoroutinefunction(fn):
                     fn = asyncio.coroutine(fn)
-                    worker.update({key: fn})
+                    self.worker.update({key: fn})
                 self.item[key] = await fn(self, resp)
             return self.item
 

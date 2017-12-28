@@ -41,6 +41,14 @@ class BaseCheetah:
 
         return super(BaseCheetah, cls).__new__(cls)
 
+    def __init__(self, name, url):
+        self.url = url
+        self.name = name
+        self.worker = self.__class__.worker
+        self.item = {item_name: None for item_name,
+                     _ in self.worker.items()}
+        self.item['url'] = self.url
+
     def run(self):
         pass
 
