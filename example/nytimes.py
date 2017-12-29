@@ -38,7 +38,7 @@ class DailyPage(pycheetah.Cheetah):
                                               headers=headers).text,
                                  'lxml')
         except (ReadTimeout, ConnectionError) as msg:
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_urls(self, soup):
         urls = []
@@ -64,7 +64,7 @@ class NewsPage(pycheetah.Cheetah):
             if res:
                 return BeautifulSoup(res.text, 'lxml')
         except (ReadTimeout, ConnectionError):
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_title(self, soup):
         name = soup.find('h6', attrs={'class': 'kicker'})
@@ -94,7 +94,7 @@ class NewsPage(pycheetah.Cheetah):
         return soup.find('link', attrs={'rel': 'canonical'})['href']
 
 
-if __name__ == '__main__':
+def main():
     pycheetah.init_logger()
     urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
                                    '2017/1/1', '2017/1/1',
@@ -103,5 +103,11 @@ if __name__ == '__main__':
 
     result = pycheetah.start(urls, DailyPage)
     urls = result.reduce_by('urls')
+    yield urls
     result = pycheetah.start(urls, NewsPage)
-    result.save('nytimes.csv')
+    yield result.reduce_by('title')
+    # result.save('nytimes.csv')
+
+
+if __name__ == '__main__':
+    main()

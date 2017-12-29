@@ -18,10 +18,9 @@ class Cheetah(BaseCheetah):
     concurrent = 5
 
     def run(self):
-        request_method = self.request
-        resp = request_method(self.url)
+        resp = self.__class__.request(self, self.url)
         if resp:
-            for key, fn in self.worker.items():
+            for key, fn in self.worker.fn_items():
                 self.item[key] = fn(self, resp)
             return self.item
 
@@ -36,12 +35,9 @@ class AsyncCheetah(BaseCheetah):
     concurrent = 1
 
     async def run(self):
-        resp = await self.request(self.url)
+        resp = await self.__class__.request(self, self.url)
         if resp:
-            for key, fn in self.worker.items():
-                if not asyncio.iscoroutinefunction(fn):
-                    fn = asyncio.coroutine(fn)
-                    self.worker.update({key: fn})
+            for key, fn in self.worker.fn_items(asyn=True):
                 self.item[key] = await fn(self, resp)
             return self.item
 

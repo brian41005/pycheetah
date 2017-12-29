@@ -59,8 +59,7 @@ class DailyPage(pycheetah.Cheetah):
                                  'lxml')
             return soup
         except (ReadTimeout, ConnectionError):
-            logging.info('RETRY [%s][%s]' % (self.name, url.split('/')[-1]))
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_urls(self, soup):
         urls = []
@@ -82,7 +81,7 @@ class NewsPage(pycheetah.Cheetah):
                 soup = BeautifulSoup(res.text, 'lxml')
                 return soup
         except (ReadTimeout, ConnectionError):
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_name(self, soup):
         name = soup.find('h1', attrs={'class': 'content__headline',
@@ -112,15 +111,18 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/5/1',
+                                             '2017/1/1',
                                              product=[category, 'date']))
 
     pycheetah.init_logger()
 
     result = pycheetah.start(all_daily_urls, DailyPage)
-    #urls = result.reduce_by('urls')
-    #result = pycheetah.start(urls, NewsPage)
+    urls = result.reduce_by('urls')
+    yield urls
+    result = pycheetah.start(urls, NewsPage)
+    yield result.reduce_by('name')
     # result.save('theguardian.csv')
+    return result
 
 
 if __name__ == '__main__':

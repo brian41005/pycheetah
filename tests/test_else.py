@@ -10,6 +10,12 @@ import asyncio
 
 
 class TestElse(unittest.TestCase):
+    def setUp(self):
+        pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sys.path.append(pkg_dir + '/example')
+        import example
+        self.example = example
+
     def test_X(self):
         results = ['1234'] * 50000 + [{}] * 50000
         random.shuffle(results)
@@ -19,10 +25,20 @@ class TestElse(unittest.TestCase):
         self.assertLessEqual(time.time() - t0, 0.05)
 
     def test_theguardian(self):
-        pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        sys.path.append(pkg_dir + '/example')
-        import example.theguardian
-        example.theguardian.main
+        for r in self.example.theguardian.main():
+            self.assertNotEqual(r, [])
+
+    def test_async_theguardian(self):
+        for r in self.example.async_theguardian.main():
+            self.assertNotEqual(r, [])
+
+    def test_nytimes(self):
+        for r in self.example.nytimes.main():
+            self.assertNotEqual(r, [])
+
+    def test_ptt(self):
+        for r in self.example.ptt_movie.main():
+            self.assertNotEqual(r, [])
 
     def test_check_asyncfunc(self):
         async def fn():

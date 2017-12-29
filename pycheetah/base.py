@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABCMeta, abstractmethod
 
 from . import log
@@ -17,10 +18,20 @@ class Worker(dict):
     def __getattr__(self, name):
         return self[name]
 
+    def fn_items(self, asyn=False):
+        if not asyn:
+            for key, fn in self.items():
+                yield key, fn
+        else:
+            for key, fn in self.items():
+                if not asyncio.iscoroutinefunction(fn):
+                    fn = asyncio.coroutine(fn)
+                    self[key] = fn
+                yield key, fn
+
 
 class BaseCheetah:
     worker = None
-
     request = None
 
     def __new__(cls, *agrs):

@@ -77,12 +77,11 @@ def main():
                 'technology', 'travel']
     all_daily_urls = list(pycheetah.gen_urls('https://www.theguardian.com/%s/%s/all',
                                              '2017/1/1',
-                                             '2017/5/1',
+                                             '2017/1/1',
                                              product=[category, 'date']))
     pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)
-    # print(result)
-    assert result.reduce_by('urls') != []
+    return result
 
 
 if __name__ == '__main__':

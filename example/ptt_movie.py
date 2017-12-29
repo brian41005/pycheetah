@@ -23,7 +23,7 @@ class Board(pycheetah.Cheetah):
             text = res.text
             return BeautifulSoup(text, 'lxml')
         except (ReadTimeout, ConnectionError) as msg:
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_links(self, soup):
         soup = soup.find('div',
@@ -40,7 +40,7 @@ class Article(pycheetah.Cheetah):
             text = res.text
             return BeautifulSoup(text, 'lxml')
         except (ReadTimeout, ConnectionError) as msg:
-            return self.retry()
+            raise pycheetah.Retry
 
     def get_title(self, soup):
         title = soup.find_all('span', attrs={'class': 'article-meta-value'})[2]
@@ -55,12 +55,18 @@ class Article(pycheetah.Cheetah):
         return text.replace('\n', ' ')
 
 
-if __name__ == '__main__':
+def main():
     pycheetah.init_logger()
     urls = list(pycheetah.gen_urls('https://www.ptt.cc/bbs/movie/index%d.html',
-                                   product=[list(range(5188, 6189))]))
+                                   product=[list(range(6100, 6189))]))
 
     result = pycheetah.start(urls, Board)
     urls = result.reduce_by('links')
+    yield urls
     reseult = pycheetah.start(urls, Article, verbose=True)
-    reseult.save('ptt_movie.csv')
+    yield reseult.reduce_by('article')
+    # reseult.save('ptt_movie.csv')
+
+
+if __name__ == '__main__':
+    main()
