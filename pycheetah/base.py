@@ -19,15 +19,11 @@ class Worker(dict):
         return self[name]
 
     def fn_items(self, asyn=False):
-        if not asyn:
-            for key, fn in self.items():
-                yield key, fn
-        else:
-            for key, fn in self.items():
+        for key, fn in self.items():
+            if asyn:
                 if not asyncio.iscoroutinefunction(fn):
                     fn = asyncio.coroutine(fn)
-                    self[key] = fn
-                yield key, fn
+            yield key, fn
 
 
 class BaseCheetah:
