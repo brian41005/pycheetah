@@ -7,7 +7,7 @@ from concurrent import futures
 from .container import Result
 from .utils import partition
 
-__all__ = ['TaskManagerFactory']
+__all__ = ('TaskManagerFactory',)
 
 
 class ABCTaskManager(ABC):

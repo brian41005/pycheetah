@@ -4,7 +4,7 @@ import os
 import sys
 from datetime import datetime
 
-__all__ = ['init_logger', 'addLogger']
+__all__ = ('init_logger', 'addLogger')
 
 
 def addLogger(func):

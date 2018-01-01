@@ -2,7 +2,7 @@
 import csv
 from abc import ABC, abstractmethod
 
-__all__ = ['Result']
+__all__ = ('Result',)
 
 
 class ISaver(ABC):

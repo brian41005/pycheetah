@@ -20,9 +20,8 @@ class Worker(dict):
 
     def fn_items(self, asyn=False):
         for key, fn in self.items():
-            if asyn:
-                if not asyncio.iscoroutinefunction(fn):
-                    fn = asyncio.coroutine(fn)
+            if asyn and not asyncio.iscoroutinefunction(fn):
+                fn = asyncio.coroutine(fn)
             yield key, fn
 
 
@@ -30,9 +29,8 @@ class BaseCheetah:
     worker = None
     request = None
 
-    def __new__(cls, *agrs):
-
-        if not cls.worker:
+    def __new__(cls, name, url):
+        if not (cls.worker and cls.request):
             cls.worker = Worker()
             for func_str in (set(dir(cls)) - set(dir(BaseCheetah))):
                 func = getattr(cls, func_str)
@@ -56,6 +54,7 @@ class BaseCheetah:
                      _ in self.worker.items()}
         self.item['url'] = self.url
 
+    @abstractmethod
     def run(self):
         pass
 

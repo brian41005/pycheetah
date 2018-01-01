@@ -6,7 +6,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-__all__ = ['gen_urls', 'partition']
+__all__ = ('gen_urls', 'partition')
 
 
 def partition(container, n):
