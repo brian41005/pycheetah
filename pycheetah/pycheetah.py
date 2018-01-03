@@ -1,6 +1,4 @@
 # coding: utf-8
-import asyncio
-import inspect
 import logging
 import os
 import time
@@ -18,7 +16,7 @@ class Cheetah(BaseCheetah):
     concurrent = 5
 
     def run(self):
-        resp = self.__class__.request(self, self.url)
+        resp = self.request(self.url)
         if resp:
             for key, fn in self.worker.fn_items():
                 self.item[key] = fn(self, resp)
@@ -37,7 +35,7 @@ class AsyncCheetah(BaseCheetah):
     concurrent = 1
 
     async def run(self):
-        resp = await self.__class__.request(self, self.url)
+        resp = await self.request(self.url)
         if resp:
             for key, fn in self.worker.fn_items(asyn=True):
                 self.item[key] = await fn(self, resp)

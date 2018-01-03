@@ -27,10 +27,9 @@ class Worker(dict):
 
 class BaseCheetah:
     worker = None
-    request = None
 
     def __new__(cls, name, url):
-        if not (cls.worker and cls.request):
+        if not cls.worker:
             cls.worker = Worker()
             for func_str in (set(dir(cls)) - set(dir(BaseCheetah))):
                 func = getattr(cls, func_str)
@@ -38,11 +37,6 @@ class BaseCheetah:
                     if func.__name__.startswith('get_'):
                         func.__name__ = func.__name__.replace('get_', '')
                         cls.worker.addfn(log.addLogger(func))
-                    elif func.__name__ == 'request':
-                        cls.request = log.addLogger(func)
-
-            if not cls.request:
-                raise NotImplementedError('request method not found!')
 
         return super(BaseCheetah, cls).__new__(cls)
 
@@ -50,9 +44,12 @@ class BaseCheetah:
         self.url = url
         self.name = name
         self.worker = self.__class__.worker
-        self.item = {item_name: None for item_name,
-                     _ in self.worker.items()}
+        self.item = {key: None for key in self.worker.keys()}
         self.item['url'] = self.url
+
+    @abstractmethod
+    def request(self, url):
+        pass
 
     @abstractmethod
     def run(self):

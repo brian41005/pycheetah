@@ -12,7 +12,7 @@ import pycheetah
 # nytimes
 all_daily_urls = list(pycheetah.gen_urls('http://www.nytimes.com/indexes/%s/todayspaper/index.html',
                                          '2017/1/1',
-                                         '2017/1/5',
+                                         '2017/1/1',
                                          date_format='%Y/%m/%d',
                                          product=['date']))
 print(all_daily_urls[:3])
