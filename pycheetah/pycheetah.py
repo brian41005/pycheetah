@@ -7,7 +7,7 @@ import time
 
 from . import utils
 from .base import BaseCheetah
-from .command import *
+from .command import Retry, Fail
 from .map import StrategyMap
 from .task import TaskManagerFactory
 
@@ -29,6 +29,8 @@ class Cheetah(BaseCheetah):
             return self.run()
         except Retry:
             return self.url
+        except Fail:
+            pass
 
 
 class AsyncCheetah(BaseCheetah):
@@ -46,6 +48,8 @@ class AsyncCheetah(BaseCheetah):
             return await self.run()
         except Retry:
             return self.url
+        except Fail:
+            pass
 
 
 def start(urls, cheetah, cpu=None, verbose=True):

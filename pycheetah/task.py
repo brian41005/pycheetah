@@ -66,7 +66,7 @@ class AsyncTaskManager(ABCTaskManager):
             tasks.append(task)
 
         wait_coro = asyncio.wait(tasks)
-        res, q = loop.run_until_complete(wait_coro)
+        res, _ = loop.run_until_complete(wait_coro)
 
         for task in res:
             result_obj.append(task.result())
