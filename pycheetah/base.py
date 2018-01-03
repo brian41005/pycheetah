@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 from . import log
 
-__all__ = ('BaseCheetah', 'Worker')
+__all__ = ['BaseCheetah', 'Worker']
 
 
 class Worker(dict):
@@ -13,7 +13,7 @@ class Worker(dict):
             fn_name = fn.__name__
             self[fn_name] = fn
         else:
-            raise TypeError('fn is not callable')
+            raise TypeError('{} is not callable'.format(fn))
 
     def __getattr__(self, name):
         return self[name]
@@ -38,7 +38,7 @@ class BaseCheetah:
                         func.__name__ = func.__name__.replace('get_', '')
                         cls.worker.addfn(log.addLogger(func))
 
-        return super(BaseCheetah, cls).__new__(cls)
+        return super().__new__(cls)
 
     def __init__(self, name, url):
         self.url = url

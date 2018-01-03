@@ -65,7 +65,6 @@ def main():
     yield urls
     reseult = pycheetah.start(urls, Article, verbose=True)
     yield reseult.reduce_by('article')
-    # reseult.save('ptt_movie.csv')
 
 
 if __name__ == '__main__':

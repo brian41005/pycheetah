@@ -9,7 +9,7 @@ from .command import Retry, Fail
 from .map import StrategyMap
 from .task import TaskManagerFactory
 
-__all__ = ('Cheetah', 'start', 'AsyncCheetah')
+__all__ = ['Cheetah', 'start', 'AsyncCheetah']
 
 
 class Cheetah(BaseCheetah):

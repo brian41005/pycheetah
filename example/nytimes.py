@@ -106,7 +106,6 @@ def main():
     yield urls
     result = pycheetah.start(urls, NewsPage)
     yield result.reduce_by('title')
-    # result.save('nytimes.csv')
 
 
 if __name__ == '__main__':

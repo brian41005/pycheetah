@@ -121,8 +121,6 @@ def main():
     yield urls
     result = pycheetah.start(urls, NewsPage)
     yield result.reduce_by('name')
-    # result.save('theguardian.csv')
-    return result
 
 
 if __name__ == '__main__':

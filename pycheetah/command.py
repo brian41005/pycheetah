@@ -1,6 +1,6 @@
 from enum import Enum
 
-__all__ = ('Command', 'Retry', 'Fail')
+__all__ = ['Command', 'Retry', 'Fail']
 
 
 class Command(Exception):

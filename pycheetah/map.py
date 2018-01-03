@@ -6,7 +6,7 @@ from sys import platform
 
 from .container import Result
 
-__all__ = ('StrategyMap',)
+__all__ = ['StrategyMap']
 
 
 def _fn(task_manager):

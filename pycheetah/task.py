@@ -7,7 +7,7 @@ from concurrent import futures
 from .container import Result
 from .utils import partition
 
-__all__ = ('TaskManagerFactory',)
+__all__ = ['TaskManagerFactory']
 
 
 class ABCTaskManager(ABC):
@@ -34,6 +34,7 @@ class ABCTaskManager(ABC):
 
     def _start(self, iterable):
         result_obj = Result()
+        logging.info('submitting {} urls'.format(len(iterable)))
         result = self._submit(iterable)
         to_do, done = self._differentiate(result)
         result_obj.extend(done)
@@ -56,7 +57,6 @@ class AsyncTaskManager(ABCTaskManager):
         return self._start(self.urls)
 
     def _submit(self, iterable):
-        logging.info('submitting {} urls'.format(len(iterable)))
         loop = asyncio.new_event_loop()  # instead of get_event_loop
         result_obj = Result()
 
@@ -86,8 +86,6 @@ class ThreadTaskManager(ABCTaskManager):
         return self._start(self.urls)
 
     def _submit(self, iterable):
-        logging.info('submitting {} urls'.format(len(iterable)))
-
         with futures.ThreadPoolExecutor(self.num_thread) as executor:
             to_do = [executor.submit(self.cheetah_cls(str(i), each))
                      for i, each in enumerate(iterable)]

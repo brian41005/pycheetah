@@ -71,6 +71,38 @@ class DailyPage(pycheetah.AsyncCheetah):
         return urls
 
 
+class NewsPage(pycheetah.AsyncCheetah):
+    async def request(self, url):
+        try:
+            async with aiohttp.ClientSession(headers=headers) as session:
+                async with session.get(url) as resp:
+                    soup = BeautifulSoup(await resp.text(), 'lxml')
+                    return soup
+        except aiohttp.ClientConnectorError:
+            raise pycheetah.Retry
+
+    def get_name(self, soup):
+        name = soup.find('h1', attrs={'class': 'content__headline',
+                                      'itemprop': 'headline'})
+        if name:
+            return rm_url_tag(str(name)).strip()
+
+    def get_article(self, soup):
+        article = ''
+        attrs = {'class': 'content__article-body from-content-api js-article__body',
+                 'itemprop': 'articleBody',
+                 'data-test-id': 'article-review-body'}
+
+        for articleBody in soup.find_all('div', attrs=attrs):
+            for each_p in articleBody.find_all('p'):
+                article += process(rm_url_tag(each_p.text))
+
+        return article
+
+    def get_category(self, soup):
+        return soup.find('link', attrs={'rel': 'canonical'})['href'].split('/')[3]
+
+
 def main():
     category = ['world', 'politics', 'sport', 'football', 'culture',
                 'business', 'lifeandstyle', 'fashion', 'environment',
@@ -81,7 +113,10 @@ def main():
                                              product=[category, 'date']))
     pycheetah.init_logger()
     result = pycheetah.start(all_daily_urls, DailyPage)
-    return result
+    urls = result.reduce_by('urls')
+    yield urls
+    result = pycheetah.start(urls, NewsPage)
+    yield result.reduce_by('name')
 
 
 if __name__ == '__main__':
