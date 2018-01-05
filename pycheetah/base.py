@@ -1,7 +1,12 @@
 import asyncio
+import logging
+import os
+import time
 from abc import abstractmethod
 
-from . import log
+from . import log, utils
+from .map import StrategyMap
+from .task import TaskManagerFactory
 
 __all__ = ['BaseCheetah', 'Worker']
 
@@ -27,6 +32,7 @@ class Worker(dict):
 
 class BaseCheetah:
     worker = None
+    concurrent = None
 
     def __new__(cls, name, url):
         if not cls.worker:
@@ -46,6 +52,31 @@ class BaseCheetah:
         self.worker = self.__class__.worker
         self.item = {key: None for key in self.worker.keys()}
         self.item['url'] = self.url
+
+    @classmethod
+    def start(cls, urls, cpu=None, verbose=True):
+        cpu = cpu if cpu else os.cpu_count()
+        cpu = min(len(urls), cpu)
+        t0 = time.time()
+
+        partitions = [TaskManagerFactory.create(cls, chunk)
+                      for chunk in utils.partition(urls, cpu)]
+        result = StrategyMap(cpu=cpu).map(partitions)
+
+        cost_time = time.time() - t0
+        num_of_item = len(result)
+        try:
+            avg = cost_time / num_of_item
+        except ZeroDivisionError:
+            avg = 0
+        if verbose:
+            logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}s, [{:d}] data'
+                         .format(cost_time,
+                                 cost_time / 3600,
+                                 avg,
+                                 num_of_item))
+
+        return result
 
     @abstractmethod
     def request(self, url):

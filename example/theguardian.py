@@ -1,24 +1,19 @@
 # coding: utf-8
 # this is a example for The Guardian web
 
-
-import logging
 import os
-import pickle
 import re
 import sys
-import time
 import unicodedata
-import random
 
 import requests
-from requests.exceptions import ReadTimeout, ConnectionError
 from bs4 import BeautifulSoup
+from requests import exceptions
 
+import pycheetah
 
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
-import pycheetah
 
 headers = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/\
@@ -58,7 +53,8 @@ class DailyPage(pycheetah.Cheetah):
                                               headers=headers).text,
                                  'lxml')
             return soup
-        except (ReadTimeout, ConnectionError):
+        except (exceptions.ReadTimeout,
+                exceptions.ConnectionError):
             raise pycheetah.Retry
 
     def get_urls(self, soup):
@@ -80,7 +76,8 @@ class NewsPage(pycheetah.Cheetah):
             if res:
                 soup = BeautifulSoup(res.text, 'lxml')
                 return soup
-        except (ReadTimeout, ConnectionError):
+        except (exceptions.ReadTimeout,
+                exceptions.ConnectionError):
             raise pycheetah.Retry
 
     def get_name(self, soup):
@@ -116,10 +113,10 @@ def main():
 
     pycheetah.init_logger()
 
-    result = pycheetah.start(all_daily_urls, DailyPage)
+    result = DailyPage.start(all_daily_urls)
     urls = result.reduce_by('urls')
     yield urls
-    result = pycheetah.start(urls, NewsPage)
+    result = NewsPage.start(urls)
     yield result.reduce_by('name')
 
 

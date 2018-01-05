@@ -101,10 +101,10 @@ def main():
                                    date_format='%Y/%m/%d',
                                    product=['date']))
 
-    result = pycheetah.start(urls, DailyPage)
+    result = DailyPage.start(urls)
     urls = result.reduce_by('urls')
     yield urls
-    result = pycheetah.start(urls, NewsPage)
+    result = NewsPage.start(urls)
     yield result.reduce_by('title')
 
 

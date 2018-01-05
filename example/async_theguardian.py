@@ -112,10 +112,10 @@ def main():
                                              '2017/1/1',
                                              product=[category, 'date']))
     pycheetah.init_logger()
-    result = pycheetah.start(all_daily_urls, DailyPage)
+    result = DailyPage.start(all_daily_urls)
     urls = result.reduce_by('urls')
     yield urls
-    result = pycheetah.start(urls, NewsPage)
+    result = NewsPage.start(urls)
     yield result.reduce_by('name')
 
 

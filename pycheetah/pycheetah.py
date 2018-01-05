@@ -1,15 +1,9 @@
 # coding: utf-8
-import logging
-import os
-import time
 
-from . import utils
 from .base import BaseCheetah
 from .command import Fail, Retry
-from .map import StrategyMap
-from .task import TaskManagerFactory
 
-__all__ = ['Cheetah', 'start', 'AsyncCheetah']
+__all__ = ['Cheetah', 'AsyncCheetah']
 
 
 class Cheetah(BaseCheetah):
@@ -48,29 +42,3 @@ class AsyncCheetah(BaseCheetah):
             return self.url
         except Fail:
             pass
-
-
-def start(urls, cheetah, cpu=None, verbose=True):
-    cpu = cpu if cpu else os.cpu_count()
-    cpu = min(len(urls), cpu)
-    t0 = time.time()
-
-    partition = []
-    for chunk in utils.partition(urls, cpu):
-        manager = TaskManagerFactory.create_taskmanager(
-            cheetah.concurrent, chunk, cheetah)
-        partition.append(manager)
-
-    result = StrategyMap(cpu=cpu).map(partition)
-
-    cost_time = time.time() - t0
-    num_of_item = len(result)
-    try:
-        avg = cost_time / num_of_item
-    except ZeroDivisionError:
-        avg = 0
-    if verbose:
-        logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}s, [{:d}] data'.format(
-            cost_time, cost_time / 3600, avg, num_of_item))
-
-    return result

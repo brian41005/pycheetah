@@ -26,16 +26,16 @@ class ABCTaskManager(ABC):
             elif isinstance(item, dict):
                 done.append(item)
 
-        logging.info('[{}] done, [{}] urls need to be resubmited'.format(
-            len(done), len(to_do)))
+        logging.info('[{:d}] done, [{:d}] urls need to be resubmited'
+                     .format(len(done), len(to_do)))
         return to_do, done
 
     def _start(self, iterable):
         '''
-        template method
+        Template method
         '''
         result_obj = Result()
-        logging.info('submitting {} urls'.format(len(iterable)))
+        logging.info('submitting {:d} urls'.format(len(iterable)))
         result = self._submit(iterable)
         to_do, done = self._differentiate(result)
         result_obj.extend(done)
@@ -59,7 +59,6 @@ class AsyncTaskManager(ABCTaskManager):
 
     def _submit(self, iterable):
         loop = asyncio.new_event_loop()  # instead of get_event_loop
-        result_obj = Result()
 
         tasks = []
         for i, each in enumerate(self.urls):
@@ -69,6 +68,7 @@ class AsyncTaskManager(ABCTaskManager):
         wait_coro = asyncio.wait(tasks)
         res, _ = loop.run_until_complete(wait_coro)
 
+        result_obj = Result()
         for task in res:
             result_obj.append(task.result())
 
@@ -99,11 +99,13 @@ class ThreadTaskManager(ABCTaskManager):
 class TaskManagerFactory:
 
     @staticmethod
-    def create_taskmanager(concurrent, iterable, cheetah):
-        if concurrent > 1:
+    def create(cheetah, iterable):
+        num_concurrency = cheetah.concurrent
+        if num_concurrency > 1:
             return ThreadTaskManager(iterable, cheetah)
-        elif concurrent == 1:
+        elif num_concurrency == 1:
             return AsyncTaskManager(iterable, cheetah)
         else:
             raise ValueError(
-                'concurrent should be > 0, {%d} given '.format(concurrent))
+                'concurrent should be > 0, {:d} given '
+                .format(num_concurrency))

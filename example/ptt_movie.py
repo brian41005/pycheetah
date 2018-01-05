@@ -1,15 +1,13 @@
 # coding:utf-8
-import logging
+
 import os
-import re
 import sys
-import time
-import unicodedata
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from requests.exceptions import ConnectionError, ReadTimeout
+from requests import exceptions
+
 
 pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(pkg_dir)
@@ -22,7 +20,8 @@ class Board(pycheetah.Cheetah):
             res = requests.get(url, timeout=3)
             text = res.text
             return BeautifulSoup(text, 'lxml')
-        except (ReadTimeout, ConnectionError) as msg:
+        except (exceptions.ReadTimeout,
+                exceptions.ConnectionError):
             raise pycheetah.Retry
 
     def get_links(self, soup):
@@ -39,7 +38,8 @@ class Article(pycheetah.Cheetah):
             res = requests.get(url, timeout=3)
             text = res.text
             return BeautifulSoup(text, 'lxml')
-        except (ReadTimeout, ConnectionError) as msg:
+        except (exceptions.ReadTimeout,
+                exceptions.ConnectionError):
             raise pycheetah.Retry
 
     def get_title(self, soup):
@@ -60,10 +60,10 @@ def main():
     urls = list(pycheetah.gen_urls('https://www.ptt.cc/bbs/movie/index%d.html',
                                    product=[list(range(6180, 6189))]))
 
-    result = pycheetah.start(urls, Board)
+    result = Board.start(urls)
     urls = result.reduce_by('links')
     yield urls
-    reseult = pycheetah.start(urls, Article, verbose=True)
+    reseult = Article.start(urls)
     yield reseult.reduce_by('article')
 
 

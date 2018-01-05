@@ -1,9 +1,6 @@
 # coding: utf-8
-import functools
+
 import itertools
-import logging
-import os
-import sys
 from datetime import datetime, timedelta
 
 __all__ = ['gen_urls', 'partition']
