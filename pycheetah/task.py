@@ -1,11 +1,9 @@
 import asyncio
 import logging
-import time
 from abc import ABC, abstractmethod
 from concurrent import futures
 
 from .container import Result
-from .utils import partition
 
 __all__ = ['TaskManagerFactory']
 
@@ -33,6 +31,9 @@ class ABCTaskManager(ABC):
         return to_do, done
 
     def _start(self, iterable):
+        '''
+        template method
+        '''
         result_obj = Result()
         logging.info('submitting {} urls'.format(len(iterable)))
         result = self._submit(iterable)

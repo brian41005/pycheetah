@@ -5,7 +5,7 @@ import time
 
 from . import utils
 from .base import BaseCheetah
-from .command import Retry, Fail
+from .command import Fail, Retry
 from .map import StrategyMap
 from .task import TaskManagerFactory
 
