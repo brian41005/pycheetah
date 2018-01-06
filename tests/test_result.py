@@ -56,6 +56,11 @@ class TestResult(unittest.TestCase):
         result = self.r.reduce_by('a')
         self.assertEqual([1, None], result)
 
+    def test_reduceby3(self):
+        self.r.append({'a': [1], 'b': 1})
+        self.r.append({'a': None, 'b': 2})
+        self.assertRaises(KeyError, self.r.reduce_by, 'c')
+
     def tearDown(self):
         csv_list = [i for i in os.listdir(os.getcwd()) if i.find('.csv') != -1]
         for csvfile in csv_list:

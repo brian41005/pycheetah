@@ -15,11 +15,13 @@ class ISaver(ABC):
 class Result(list, ISaver):
     def reduce_by(self, key):
         result = []
-        for i in self:
-            if type(i[key]) is list:
-                result.extend(i[key])
+        for item in self:
+            if key not in item:
+                raise KeyError('\'{}\''.format(key))
+            if type(item[key]) is list:
+                result.extend(item[key])
             else:
-                result.append(i[key])
+                result.append(item[key])
         return result
 
     def save(self, *args, **kwargs):

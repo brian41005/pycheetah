@@ -32,7 +32,7 @@ class Worker(dict):
 
 class BaseCheetah:
     worker = None
-    concurrent = None
+    concurrent = 1
 
     def __new__(cls, name, url):
         if not cls.worker:
