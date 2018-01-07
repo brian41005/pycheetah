@@ -19,12 +19,14 @@ def partition(container, n):
     len_ = len(container)
     chunk_size = int(len_ / n)
     n -= 1
+    chunk = []
     for i in range(n):
         start = chunk_size * i
-        yield container[start:start + chunk_size]
+        chunk.append(container[start:start + chunk_size])
 
     start = chunk_size * n
-    yield container[start:]
+    chunk.append(container[start:])
+    return chunk
 
 
 def gen_urls(url, startdate=None, enddate=None, date_format='%Y/%b/%d', product=['date']):

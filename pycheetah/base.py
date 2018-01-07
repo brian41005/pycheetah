@@ -4,9 +4,9 @@ import os
 import time
 from abc import abstractmethod
 
-from . import log, utils
+from . import log
 from .map import StrategyMap
-from .task import TaskManagerFactory
+from .task import TaskManagerFactory as TMFactory
 
 __all__ = ['BaseCheetah', 'Worker']
 
@@ -59,16 +59,17 @@ class BaseCheetah:
         cpu = min(len(urls), cpu)
         t0 = time.time()
 
-        partitions = [TaskManagerFactory.create(cls, chunk)
-                      for chunk in utils.partition(urls, cpu)]
-        result = StrategyMap(cpu=cpu).map(partitions)
+        managers = TMFactory.create_managers(cls, urls, cpu)
+        result = StrategyMap(cpu=cpu).map(managers)
 
         cost_time = time.time() - t0
         num_of_item = len(result)
+
         try:
             avg = cost_time / num_of_item
         except ZeroDivisionError:
             avg = 0
+
         if verbose:
             logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}s, [{:d}] data'
                          .format(cost_time,

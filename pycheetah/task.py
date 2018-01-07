@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from concurrent import futures
 
 from .container import Result
-
+from . import utils
 __all__ = ['TaskManagerFactory']
 
 
@@ -98,8 +98,8 @@ class ThreadTaskManager(ABCTaskManager):
 
 class TaskManagerFactory:
 
-    @staticmethod
-    def create(cheetah, iterable):
+    @classmethod
+    def create(cls, cheetah, iterable):
         num_concurrency = cheetah.concurrent
         if num_concurrency > 1:
             return ThreadTaskManager(iterable, cheetah)
@@ -109,3 +109,9 @@ class TaskManagerFactory:
             raise ValueError(
                 'concurrent should be > 0, {:d} given '
                 .format(num_concurrency))
+
+    @classmethod
+    def create_managers(cls, cheetah, urls, job):
+        urls = utils.partition(urls, job)
+        managers = [cls.create(cheetah, i) for i in urls]
+        return managers
