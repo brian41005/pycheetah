@@ -64,11 +64,10 @@ class BaseCheetah:
 
         cost_time = time.time() - t0
         num_of_item = len(result)
+        if not num_of_item:
+            raise Exception('result is empty.')
 
-        try:
-            avg = cost_time / num_of_item
-        except ZeroDivisionError:
-            avg = 0
+        avg = cost_time / num_of_item
 
         if verbose:
             logging.info('spent:{:4.2f}s ({:3.2f}hr), avg:{:.6f}s, [{:d}] data'
